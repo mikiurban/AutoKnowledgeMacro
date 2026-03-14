@@ -1,4 +1,6 @@
 local MACRO_NAME = "AutoKnowledgeMacro"
+SLASH_AUTOKNOWLEDGEMACRO1, SLASH_AUTOKNOWLEDGEMACRO2 = '/autokm', '/akm'
+local UNCACHED = "(uncached)"
 local BAGS = {
   Enum.BagIndex.Backpack,
   Enum.BagIndex.Bag_1,
@@ -7,93 +9,281 @@ local BAGS = {
   Enum.BagIndex.Bag_4
 }
 local ALCHEMY_PK_ITEMS = {
-  238536, 238538, 238535, 238537, 238534, 238533, 238532, 238539, -- MID Treasures
-  262645, -- Faction Vendor
-  245755, -- Thalassian Treatise
-  246320, 246321, -- Work Orders?
-  259188, 259189, -- Chests
-  263454, -- Weekly quest?
+  -- MID Treasures
+  238532, -- Vial of Eversong Oddities
+  238533, -- Vial of Voidstorm Oddities
+  238534, -- Vial of Rootlands Oddities
+  238535, -- Vial of Zul'Aman Oddities
+  238536, -- Freshly Plucked Peacebloom
+  238537, -- Measured Ladle
+  238538, -- Pristine Potion
+  238539, -- Failed Experiment
+  -- Thalassian Treatise
+  245755, -- Thalassian Treatise on Alchemy
+  -- Work Orders
+  246320, -- Flicker of Midnight Alchemy Knowledge
+  246321, -- Glimmer of Midnight Alchemy Knowledge
+  -- Secret
+  255828, -- Sr. Professor Instructaur's Top Secret Guide to Midnight Alchemy
+  -- Chests
+  259188, -- Lightbloomed Spore Sample
+  259189, -- Aged Cruor
+  -- Faction Vendor
+  262645, -- Beyond the Event Horizon: Alchemy
+  -- Weekly quest  
+  263454, -- Thalassian Alchemist's Notebook
 }
 local BLACKSMITH_PK_ITEMS = {
-  238546, 238547, 238540, 238543, 238541, 238542, 238545, 238544, -- MID Treasures
-  262644, -- Faction Vendor
-  245763, -- Thalassian Treatise
-  246322, 246323, -- Work Orders?
-  259190, 259191, -- Chests
-  263455, -- Weekly quest
+  -- MID Treasures
+  238540, -- Deconstructed Forge Techniques
+  238541, -- Silvermoon Smithing Kit
+  238542, -- Carefully Racked Spear
+  238543, -- Metalworking Cheat Sheet
+  238544, -- Voidstorm Defense Spear
+  238545, -- Rutaani Floratender's Sword
+  238546, -- Sin'dorei Master's Forgemace
+  238547, -- Silvermoon Blacksmith's Hammer
+  -- Thalassian Treatise
+  245763, -- Thalassian Treatise on Blacksmithing
+  -- Work Orders
+  246322, -- Flicker of Midnight Blacksmithing Knowledge
+  246323, -- Glimmer of Midnight Blacksmithing Knowledge
+  -- Secret
+  255829, -- Sr. Professor Instructaur's Top Secret Guide to Midnight Blacksmithing
+  -- Chests
+  259190, -- Thalassian Whestone
+  259191, -- Infused Quenching Oil
+  -- Faction Vendor
+  262644, -- Beyond the Event Horizon: Blacksmithing
+  -- Weekly Quest
+  263455, -- Thalassian Blacksmith's Journal
 }
 local ENCHANTING_PK_ITEMS = {
-  238555, 238554, 238552, 238550, 238548, 238553, 238551, 238549, -- MID Treasures
-  257600, -- Faction Vendor
-  245759, -- Thalassian Treatise
-  246324, 246325, -- Work Orders?
-  259192, 259193, -- Chests
-  263464, -- Weekly Quest
-  250445, -- Vendor (Chel the Chip)
+  -- MID Treasures
+  238548, -- Enchanted Amani Mask
+  238549, -- Enchanted Sunfire Silk
+  238550, -- Pure Void Crystal
+  238551, -- Everblazing Sunmote
+  238552, -- Entropic Shard
+  238553, -- Primal Essence Orb
+  238554, -- Loa-Blessed Dust
+  238555, -- Sin'dorei Enchanting Rod
+  -- Thalassian Treatise
+  245759, -- Thalassian Treatise on Enchanting
+  -- Work Orders
+  246324, -- Flicker of Midnight Enchanting Knowledge
+  246325, -- Glimmer of Midnight Enchanting Knowledge
+  -- Chel the Chip
+  250445, -- Echo of Abundance: Enchanting 
+  -- Secret
+  255830, -- Sr. Professor Instructaur's Top Secret Guide to Midnight Enchanting
+  -- Faction Vendor
+  257600, -- Skill Issue: Enchanting
+  -- Chests
+  259192, -- Voidstorm Ashes
+  259193, -- Lost Thalassian Vellum
+  -- Weekly Quest
+  263464, -- Thalassian Enchanter's Folio
+  -- Disenchanting
+  267654, -- Swirling Arcane Essence
+  268655, -- Brimming Mana Shard
 }
 local ENGINEERING_PK_ITEMS = {
-  238562, 238556, 238558, 238561, 238563, 238559, 238560, 238557, -- MID Treasures
-  262646, -- Faction Vendor
-  245809, -- Thalassian Treatise
-  246326, 246327, -- Work Orders
-  259194, 259195, -- Chests
-  263456, -- Weekly Quest
+  -- MID Treasures
+  238556, -- One Engineer's Junk
+  238557, -- Miniaturized Transport Skiff
+  238558, -- Manual of Mistakes and Mishaps
+  238559, -- Expeditious Pylon
+  238560, -- Ethereal Stormwrench
+  238561, -- Offline Helper Bot
+  238562, -- What To Do When Nothing Works
+  238563, -- Handy Wrench
+  -- Thalassian Treatise
+  245809, -- Thalassian Treatise on Engineering
+  -- Work Orders
+  246326, -- Flicker of Midnight Engineering Knowledge
+  246327, -- Glimmer of Midnight Engineering Knowledge
+  -- Secrets
+  255831, -- Sr. Professor Instructaur's Top Secret Guide to Midnight Engineering
+  -- Chests
+  259194, -- Dance Gear
+  259195, -- Dawn Capacitor
+  -- Faction Vendor
+  262646, -- Beyond the Event Horizon: Engineering
+  -- Weekly Quest
+  263456, -- Thalassian Engineer's Notepad 
 }
 local HERBALISM_PK_ITEMS = {
-  238470, 238472, 238468, 238471, 238475, 238474, 238469, 238473, -- MID Treasures
-  258410, -- Faction Vendor
-  238465, 238467, 238466, -- Weekly Profession Drops
-  245761, -- Thalassian Treatise
-  263462, -- Weekly quest
-  250443, -- Vendor (Chel the Chip)
+  -- Weekly Profession Drops
+  238465, -- Thalassian Phoenix Plume
+  238466, -- Thalassian Phoenix Tail
+  238467, -- Thalassian Phoenix Ember
+  -- MID Treasures
+  238468, -- Bloomed Bud
+  238469, -- Sweeping Harvester's Scythe
+  238470, -- Simple Leaf Pruners
+  238471, -- Lightbloom Root
+  238472, -- A Spade
+  238473, -- Harvester's Sickle
+  238474, -- Peculiar Lotus
+  238475, -- Planting Shovel
+  -- Thalassian Treatise
+  245761, -- Thalassian Treatise on Herbalism
+  -- Vendor (Chel the Chip)
+  250443, -- Echo of Abundance: Herbalism
+  -- Secret
+  255832, -- Sr. Professor Instructaur's Top Secret Guide to Midnight Herbalism
+  -- Faction Vendor
+  258410, -- Traditions of the Haranir: Herbalism
+  -- Weekly quest
+  263462, -- Thalassian Herbalist's Notes
 }
 local INSCRIPTION_PK_ITEMS = {
-  238578, 238579, 238574, 238573, 238576, 238575, 238572, 238577, -- MID Treasures
-  258411, -- Faction Vendor
-  245757, -- Thalassian Treatise
-  246328, 246329, -- Work orders?
-  259196, 259197, -- Chests
-  263457, -- Weekly quest
+  -- MID Treasures
+  238572, -- Void-Touched Quill
+  238573, -- Leather-Bound Techniques
+  238574, -- Spare Ink
+  238575, -- Intrepid Explorer's Marker
+  238576, -- Leftover Sanguithorn Pigment
+  238577, -- Half-Baked Techniques
+  238578, -- Songwriter's Pen
+  238579, -- Songwriter's Quill
+  -- Thalassian Treatise
+  245757, -- Thalassian Treatise on Inscription
+  -- Work orders
+  246328, -- Flicker of Midnight Inscription Knowledge
+  246329, -- Glimmer of Midnight Inscription Knowledge
+  -- Secret
+  255833, -- Sr. Professor Instructaur's Top Secret Guide to Midnight Inscription
+  -- Faction Vendor
+  258411, -- Traditions of the Haranir: Inscription
+  -- Chests
+  259196, -- Brilliant Phoenix Ink
+  259197, -- Loa-Blessed Rune
+  -- Weekly quest
+  263457, -- Thalassian Scribe's Journal
 }
 local JEWELCRAFTING_PK_ITEMS = {
-  238580, 238585, 238583, 238587, 238581, 238586, 238584, 238582, -- MID Treasures
-  257599, -- Faction Vendor
-  245760, -- Thalassian Treatise
-  246330, 246331, -- Work Orders
-  259198, 259199, -- Chests
-  263458, -- Weekly quest
+  -- MID Treasures
+  238580, -- Sin'dorei Masterwork Chisel
+  238581, -- Speculative Voidstorm Crystal
+  238582, -- Dual-Function Magnifiers
+  238583, -- Poorly Rounded Vial
+  238584, -- Shattered Glass
+  238585, -- Vintage Soul Gem
+  238586, -- Ethereal Gem Pliers
+  238587, -- Sin'dorei Gem Faceters
+  -- Thalassian Treatise
+  245760, -- Thalassian Treatise on Jewelcrafting
+  -- Work Orders
+  246330, -- Flicker of Midnight Jewelcrafting Knowledge
+  246331, -- Glimmer of Midnight Jewelcrafting Knowledge
+  -- Secret
+  255834, -- Sr. Professor Instructaur's Top Secret Guide to Midnight Jewelcrafting
+  -- Faction Vendor
+  257599, -- Skill Issue: Jewelcrafting
+  -- Chests
+  259198, -- Void-Touched Eversong Diamond Fragments
+  259199, -- Harandar Stone Sample
+  -- Weekly Quest
+  263458, -- Thalassian Jewelcrafter's Notebook
 }
 local LEATHERWORKING_PK_ITEMS = {
-  238595, 238591, 238588, 238594, 238589, 238590, 238593, 238592, -- MID Treasures
-  250922, -- Faction Vendor
-  245758, -- Thalassian Treatise
-  246332, 246333, -- Work Ordesr?
-  259200, 259201, -- Chests
-  263459, -- Weekly quest
+  -- MID Treasures  
+  238588, -- Amani Leatherworker's Tool
+  238589, -- Ethereal Leatherworking Knife
+  238590, -- Prestigiously Racked Hide
+  238591, -- Bundle of Tanner's Trinkets
+  238592, -- Patterns: Beyond the Void
+  238593, -- Haranir Leatherworking Mallet
+  238594, -- Haranir Leatherworking Knife
+  238595, -- Artisan's Considered Order
+  -- Thalassian Treatise
+  245758, -- Thalassian Treatise on Leatherworking
+  -- Work Orders
+  246332, -- Flicker of Midnight Leatherworking Knowledge
+  246333, -- Glimmer of Midnight Leatherworking Knowledge
+  -- Faction Vendor
+  250922, -- Whisper of the Loa: Leatherworking
+  -- Secret
+  255835, -- Sr. Professor Instructaur's Top Secret Guide to Midnight Leatherworking
+  -- Chests
+  259200, -- Amani Tanning Oil
+  259201, -- Thalassian Mana Oil
+  -- Weekly quest
+  263459, -- Thalassian Leatherworker's Journal
 }
 local MINING_PK_ITEMS = {
-  238599, 238597, 238603, 238601, 238602, 238600, 238598, 238596, -- MID Treasures
-  250924, -- Faction Vendor
-  237507, 237496, 237506, -- Weekly Profession Drops
-  245762, -- Thalassian Treatise
-  263463, -- Weekly quest
-  250444, -- Vendor (Chel the Chip)
+  -- Weekly Profession Drops
+  237496, -- Igneous Rock Specimen
+  237506, -- Septarian Nodule
+  237507, -- Cloudy Quartz
+  -- MID Treasures
+  238596, -- Miner's Guide to Voidstorm
+  238597, -- Spelunker's Lucky Charm
+  238598, -- Lost Voidstorm Satchel
+  238599, -- Solid Ore Punchers
+  238600, -- Glimmering Void Pearl
+  238601, -- Amani Expert's Chisel
+  238602, -- Star Metal Deposit
+  238603, -- Spare Expedition Torch
+  -- Thalassian Treatise
+  245762, -- Thalassian Treatise on Mining
+  -- Vendor (Chel the Chip)
+  250444, -- Echo of Abundance: Mining
+  -- Faction Vendor
+  250924, -- Whisper of the Loa: Mining
+  -- Secret
+  255836, -- Sr. Professor Instructaur's Top Secret Guide to Midnight Mining
+  -- Weekly Quest
+  263463, -- Thalassian Miner's Notes
 }
 local SKINNING_PK_ITEMS = {
-  238633, 238635, 238632, 238634, 238629, 238630, 238628, 238631, -- MID Treasures
-  250923, -- Faction Vendor
-  245828, -- Thalassian Treatise
-  263461, -- Weekly Quest
-  238627, 238625, 238626, -- Profession drops?
-  250360, -- Vendor (Chel the Chip)
+  -- Profession drops
+  238625, -- Fine Void-Tempered Hide
+  238626, -- Mana-Infused Bone
+  238627, -- Manafused Sample
+  -- MID Treasures
+  238628, -- Lightbloom Afflicted Hide
+  238629, -- Cadre Skinning Knife
+  238630, -- Primal Hide
+  238631, -- Voidstorm Leather Sample
+  238632, -- Amani Tanning Oil
+  238633, -- Sin'dorei Tanning Oil
+  238634, -- Amani Skinning Knife
+  238635, -- Thalassian Skinning Knife
+  -- Thalassian Treatise
+  245828, -- Thalassian Treatise on Skinning
+  -- Vendor (Chel the Chip)
+  250360, -- Echo of Abundance: Skinning
+  250923, -- Whisper of the Loa: Skinning
+  -- Weekly Quest
+  263461, -- Thalassian Skinner's Notes
 }
 local TAILORING_PK_ITEMS = {
-  238613, 238618, 238619, 238614, 238612, 238615, 238616, 238617, -- MID Treasures
-  257601, -- Faction Vendor
-  245756, -- Thalassian Treatise
-  246334, 246335, -- Work Orders?
-  259202, 259203, -- Chests
-  263460, -- Weekly quest
+  -- MID Treasures
+  238612, -- A Child's Stuffy
+  238613, -- A Really Nice Curtain
+  238614, -- Sin'dorei Outfitter's Ruler
+  238615, -- Wooden Weaving Sword
+  238616, -- Book of Sin'dorei Stitches
+  238617, -- Satin Throw Pillow
+  238618, -- Particularly Enchanting Tablecloth
+  238619, -- Artisan's Cover Comb
+  -- Thalassian Treatise
+  245756, -- Thalassian Treatise on Tailoring
+  -- Work Orders
+  246334, -- Flicker of Midnight Tailoring Knowledge
+  246335, -- Glimmer of Midnight Tailoring Knowledge
+  -- Secret
+  255838, -- Sr. Professor Instructaur's Top Secret Guide to Midnight Tailoring
+  -- Faction Vendor
+  257601, -- Skill Issue: Tailoring
+  -- Chests
+  259202, -- Embroidered Memento
+  259203, -- Finely Woven Lynx Collar
+  -- Weekly quest
+  263460, -- Thalassian Tailor's Notebook
 }
 -- this will collect the above arrays, keyed under their Enum.Profession value
 local professionMap = {}
@@ -101,6 +291,10 @@ local professionMap = {}
 -- This will hold a list of every profession item
 local ALL_PROFESSION_ITEMS = {}
 
+-- This will hold a list of profession items I can use
+local MY_PROFESSION_ITEMS = {}
+
+-- Need to slashcmd this later
 local debug = false
 
 professionMap[Enum.Profession.Alchemy] = ALCHEMY_PK_ITEMS
@@ -115,16 +309,14 @@ professionMap[Enum.Profession.Mining] = MINING_PK_ITEMS
 professionMap[Enum.Profession.Skinning] = SKINNING_PK_ITEMS
 professionMap[Enum.Profession.Tailoring] = TAILORING_PK_ITEMS
 
-for _, itemList in pairs(professionMap) do
-  for _, itemID in ipairs(itemList) do ALL_PROFESSION_ITEMS[itemID] = true end
-end
-
+-- Only prints the message if debug == true
 local function apkPrint(...)
   if debug then
     print(...)
   end
 end
 
+-- return the macro index, create one if we need
 local function GetMacroSlot()
   local macroSlot = GetMacroIndexByName(MACRO_NAME)
   if macroSlot == 0 then
@@ -135,12 +327,10 @@ end
 
 local f = CreateFrame("Frame")
 
--- This function updates the macro to the first item found for these professions
--- Clears the macro if there is nothing found
-local function UpdateMacro(prof1, prof2)
-  local macroSlot = GetMacroSlot()
-
-  local itemSet = {} -- This will hold a hash of item IDs we are interested in
+-- Builds a list of items useable by the professions I have
+local function UpdateProfessionItems()
+  local prof1, prof2 = GetProfessions()
+  MY_PROFESSION_ITEMS = {}
 
   -- populate itemSet
   local profs = {prof1, prof2}
@@ -150,43 +340,34 @@ local function UpdateMacro(prof1, prof2)
       local info = C_TradeSkillUI.GetProfessionInfoBySkillLineID(skillLine)
       if info.profession then
         apkPrint("This character knows", profession_name, "(Enum.Profession =", info.profession, ")")
-        for _, l in ipairs(professionMap[info.profession]) do itemSet[l] = true end
+        for _, l in ipairs(professionMap[info.profession]) do MY_PROFESSION_ITEMS[l] = true end
       end
     end
   end
+end
+
+-- This function updates the macro to the first item found for these professions
+-- Clears the macro if there is nothing found
+local function Update()
+  -- make sure we have a macro to update
+  local macroSlot = GetMacroSlot()
 
   for _, tabID in ipairs(BAGS) do
     for slot=1, C_Container.GetContainerNumSlots(tabID) do
       local info = C_Container.GetContainerItemInfo(tabID, slot)
-      if info and itemSet[info.itemID] then
-        if ALL_PROFESSION_ITEMS[info.itemID] then
-          local displayText = C_Item.GetItemNameByID(info.itemID)
-          if displayText then
-            apkPrint ("Setting Auto PK to " .. displayText)
-            local body = "#show ".. displayText .. "\n/use " .. displayText
-            EditMacro(macroSlot, MACRO_NAME, nil, body)
-            return
-          else
-            -- force an item load
-            apkPrint ("Forcing GetItemInfo() on " .. tostring(info.itemID))
-            C_Item.GetItemInfo(info.itemID)
-          end
-        end
+      if info and MY_PROFESSION_ITEMS[info.itemID] then
+        local displayText = ALL_PROFESSION_ITEMS[info.itemID] or tostring(info.itemID)
+        apkPrint ("Setting Auto PK to " .. displayText)
+        local body = "#show ".. displayText .. "\n/use " .. displayText
+        EditMacro(macroSlot, MACRO_NAME, nil, body)
+        return
       end
     end
   end
 
   -- no items found, leave it alone
   apkPrint ("No PK items found")
-  EditMacro(macroSlot, MACRO_NAME, "INV_Misc_QuestionMark", "")
-end
-
-local function Update()
-  GetMacroSlot()
-
-  -- get professions for this character
-  local prof1, prof2 = GetProfessions()
-  UpdateMacro(prof1, prof2)
+  EditMacro(macroSlot, MACRO_NAME, "INV_Misc_QuestionMark", "/akm update")
 end
 
 function f:OnEvent(event, ...)
@@ -196,6 +377,25 @@ end
 function f:ADDON_LOADED(event, addOnName)
   if addOnName ~= MACRO_NAME then return end
 	apkPrint(event, addOnName)
+
+  -- make sure we have a macro to update
+  GetMacroSlot()
+
+  -- Load all item names in now, save us the trouble later
+  for _, itemList in pairs(professionMap) do
+    for _, itemID in ipairs(itemList) do
+      ALL_PROFESSION_ITEMS[itemID] = UNCACHED
+      local item = Item:CreateFromItemID(itemID)
+
+      item:ContinueOnItemLoad(function()
+        local id = item:GetItemID()
+        ALL_PROFESSION_ITEMS[id] = item:GetItemName()
+        Update()
+      end)
+    end
+  end
+
+  UpdateProfessionItems()
   Update()
 end
 
@@ -214,16 +414,48 @@ function f:BAG_UPDATE_DELAYED(event)
   Update()
 end
 
+function f:PLAYER_LEAVE_COMBAT(event)
+	apkPrint(event)
+  Update()
+end
+
+function f:SKILL_LINE_SPECS_UNLOCKED(event)
+	apkPrint(event)
+  UpdateProfessionItems()
+  Update()
+end
+
+function f:SKILL_LINE_SPECS_RANKS_CHANGED(event)
+	apkPrint(event)
+  UpdateProfessionItems()
+  Update()
+end
+
 function f:GET_ITEM_INFO_RECEIVED(event, itemID, success)
   if ALL_PROFESSION_ITEMS[itemID] then
 	  apkPrint(event, "itemID:", itemID, "success:", success)
-    if (success) then Update() end
+    if (success) then
+      ALL_PROFESSION_ITEMS[itemID] = C_Item.GetItemNameByID(itemID)
+      Update()
+    end
   end
 end
 
-f:RegisterEvent("ADDON_LOADED")
-f:RegisterEvent("BAG_CONTAINER_UPDATE")
-f:RegisterEvent("BAG_NEW_ITEMS_UPDATED")
-f:RegisterEvent("GET_ITEM_INFO_RECEIVED")
-f:RegisterEvent("BAG_UPDATE_DELAYED")
+f:RegisterEvent("ADDON_LOADED") -- Init tables, get all item names
+f:RegisterEvent("BAG_CONTAINER_UPDATE") -- a bag changed? 
+f:RegisterEvent("BAG_NEW_ITEMS_UPDATED") -- looted something?
+f:RegisterEvent("GET_ITEM_INFO_RECEIVED") -- Called C_Item.GetItemName(), name is ready
+f:RegisterEvent("BAG_UPDATE_DELAYED") -- bunch of stuff in the bags updated
+f:RegisterEvent("PLAYER_LEAVE_COMBAT") -- if you looted something while fighting
+f:RegisterEvent("SKILL_LINE_SPECS_UNLOCKED") -- learn\drop a profession? maybe?
+f:RegisterEvent("SKILL_LINE_SPECS_RANKS_CHANGED") -- learn\drop a profession? maybe?
+
 f:SetScript("OnEvent", f.OnEvent)
+
+SlashCmdList["AUTOKNOWLEDGEMACRO"] = function(msg, editBox)
+  if msg == "update" then
+    apkPrint("AKM: Forcing update...")
+    Update()
+  end
+  apkPrint("AKM: Complete")
+end
