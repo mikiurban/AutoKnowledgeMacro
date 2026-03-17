@@ -356,9 +356,9 @@ local function Update()
     for slot=1, C_Container.GetContainerNumSlots(tabID) do
       local info = C_Container.GetContainerItemInfo(tabID, slot)
       if info and MY_PROFESSION_ITEMS[info.itemID] then
-        local displayText = ALL_PROFESSION_ITEMS[info.itemID] or tostring(info.itemID)
+        local displayText = C_Item.GetItemNameByID(info.itemID) or tostring(info.itemID)
         apkPrint ("Setting Auto PK to " .. displayText)
-        local body = "#show ".. displayText .. "\n/use " .. displayText
+        local body = "#show ".. displayText .. "\n/use item:" .. tostring(info.itemID)
         EditMacro(macroSlot, MACRO_NAME, nil, body)
         return
       end
@@ -456,6 +456,9 @@ SlashCmdList["AUTOKNOWLEDGEMACRO"] = function(msg, editBox)
   if msg == "update" then
     apkPrint("AKM: Forcing update...")
     Update()
+    apkPrint("AKM: Complete")
+  elseif msg == "debug" then
+    debug = not debug
+    print("AKM: Debug ".. (debug and "on" or "off") )
   end
-  apkPrint("AKM: Complete")
-end
+  end
