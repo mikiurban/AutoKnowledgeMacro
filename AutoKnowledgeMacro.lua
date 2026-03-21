@@ -1,6 +1,6 @@
 local MACRO_NAME = "AutoKnowledgeMacro"
+if DLAPI then DLAPI.DebugLog(MACRO_NAME, "OK~"..MACRO_NAME.." loading...") end
 SLASH_AUTOKNOWLEDGEMACRO1, SLASH_AUTOKNOWLEDGEMACRO2 = '/autokm', '/akm'
-local UNCACHED = "(uncached)"
 local BAGS = {
   Enum.BagIndex.Backpack,
   Enum.BagIndex.Bag_1,
@@ -288,7 +288,7 @@ local TAILORING_PK_ITEMS = {
 -- this will collect the above arrays, keyed under their Enum.Profession value
 local professionMap = {}
 
--- This will hold a list of every profession item
+-- This will hold a list of every profession item.  Key is item ID, value is {"profession" : Enum.Profession, "name" : name }
 local ALL_PROFESSION_ITEMS = {}
 
 -- This will hold a list of profession items I can use
@@ -309,14 +309,47 @@ professionMap[Enum.Profession.Mining] = MINING_PK_ITEMS
 professionMap[Enum.Profession.Skinning] = SKINNING_PK_ITEMS
 professionMap[Enum.Profession.Tailoring] = TAILORING_PK_ITEMS
 
+--################################################################################--
 -- Only prints the message if debug == true
-local function apkPrint(...)
+--################################################################################--
+local function apkPrint(level, ...)
+  local status, res = pcall(format, ...)
   if debug then
+    if DLAPI then
+      DLAPI.DebugLog(MACRO_NAME, level .."~".. res)
+    else
     print(...)
   end
 end
+end
 
+--################################################################################--
+-- return the profession enum if it is an item
+--################################################################################--
+local function GetProfessionFromItemID(itemID)
+  return ALL_PROFESSIONS_FROM_ID[itemID]
+end
+
+--################################################################################--
+-- return true if I know this Enum.Profession
+--################################################################################--
+local function ProfessionLearned(profEnum)
+  local prof1, prof2 = GetProfessions()
+  local profs = {prof1, prof2}
+  for _, prof in ipairs(profs) do
+    if prof ~= nil then
+      local profession_name, _, _, _, _, _, skillLine, _ = GetProfessionInfo(prof)
+      local info = C_TradeSkillUI.GetProfessionInfoBySkillLineID(skillLine)
+      if info and info.profession and info.profession == profEnum then return true end
+    end
+  end
+  return false
+end
+
+
+--################################################################################--
 -- return the macro index, create one if we need
+--################################################################################--
 local function GetMacroSlot()
   local macroSlot = GetMacroIndexByName(MACRO_NAME)
   if macroSlot == 0 then
@@ -327,8 +360,11 @@ end
 
 local f = CreateFrame("Frame")
 
+--################################################################################--
 -- Builds a list of items useable by the professions I have
+--################################################################################--
 local function UpdateProfessionItems()
+  apkPrint("WARN", "UpdateProfessionItems start...")
   local prof1, prof2 = GetProfessions()
   MY_PROFESSION_ITEMS = {}
 
@@ -338,58 +374,76 @@ local function UpdateProfessionItems()
     if prof ~= nil then
       local profession_name, _, _, _, _, _, skillLine, _ = GetProfessionInfo(prof)
       local info = C_TradeSkillUI.GetProfessionInfoBySkillLineID(skillLine)
+      apkPrint("ERR", "Skill line " .. tostring(skillLine) .. " and profession " .. profession_name .. " found")
       if info.profession then
-        apkPrint("This character knows", profession_name, "(Enum.Profession =", info.profession, ")")
+        apkPrint("WARN", "Enum.Profession = " .. tostring(info.profession) )
         for _, l in ipairs(professionMap[info.profession]) do MY_PROFESSION_ITEMS[l] = true end
+      else
+        apkPrint("ERR", "Skill line " .. tostring(skillLine) .. " did not return any info")
       end
     end
   end
+
+  apkPrint("WARN", "UpdateProfessionItems end")
 end
 
+--################################################################################--
 -- This function updates the macro to the first item found for these professions
 -- Clears the macro if there is nothing found
+--################################################################################--
 local function Update()
   -- make sure we have a macro to update
   local macroSlot = GetMacroSlot()
-
+  local foundIt = false
+  apkPrint("WARN", "Update start...")
   for _, tabID in ipairs(BAGS) do
     for slot=1, C_Container.GetContainerNumSlots(tabID) do
       local info = C_Container.GetContainerItemInfo(tabID, slot)
       if info and MY_PROFESSION_ITEMS[info.itemID] then
+        foundIt = true
+      elseif info and ALL_PROFESSION_ITEMS[info.itemID] then
+        local profID = ALL_PROFESSION_ITEMS[info.itemID]["profession"]
+        if ProfessionLearned(profID) then
+          apkPrint("ERR", "Item " .. tostring(info.itemID) .. " was in ALL_PROFESSIONS but not MY_PROFESSIONS")
+          MY_PROFESSION_ITEMS[info.itemID] = true
+          foundIt = true
+        end
+      end
+
+      if foundIt then
         local displayText = C_Item.GetItemNameByID(info.itemID) or tostring(info.itemID)
-        apkPrint ("Setting Auto PK to " .. displayText)
-        local body = "#show ".. displayText .. "\n/use item:" .. tostring(info.itemID)
+        apkPrint ("OK", "Setting Auto PK to " .. displayText)
+        local body = "#showtooltip ".. displayText .. "\n/use item:" .. tostring(info.itemID)
         EditMacro(macroSlot, MACRO_NAME, nil, body)
+        apkPrint("WARN", "Update end, found " .. displayText)
         return
       end
     end
   end
 
   -- no items found, leave it alone
-  apkPrint ("No PK items found")
+  apkPrint("WARN", "Update end, nothing found")
   EditMacro(macroSlot, MACRO_NAME, "INV_Misc_QuestionMark", "/akm update")
 end
 
-function f:OnEvent(event, ...)
-	self[event](self, event, ...)
-end
-
-function f:ADDON_LOADED(event, addOnName)
-  if addOnName ~= MACRO_NAME then return end
-	apkPrint(event, addOnName)
-
+--################################################################################--
+-- (Almost) everything the addon needs to do, excludes static data
+--################################################################################--
+local function Reload()
   -- make sure we have a macro to update
   GetMacroSlot()
 
+  ALL_PROFESSION_ITEMS = {}
   -- Load all item names in now, save us the trouble later
-  for _, itemList in pairs(professionMap) do
+  for professionEnum, itemList in pairs(professionMap) do
     for _, itemID in ipairs(itemList) do
-      ALL_PROFESSION_ITEMS[itemID] = UNCACHED
+      ALL_PROFESSION_ITEMS[itemID] = { profession = professionEnum, name = tostring(itemID) }
       local item = Item:CreateFromItemID(itemID)
 
       item:ContinueOnItemLoad(function()
         local id = item:GetItemID()
-        ALL_PROFESSION_ITEMS[id] = item:GetItemName()
+        local name = item:GetItemName()
+        if name then ALL_PROFESSION_ITEMS[id]["name"] = name end
         Update()
       end)
     end
@@ -399,66 +453,100 @@ function f:ADDON_LOADED(event, addOnName)
   Update()
 end
 
+--################################################################################--
+-- EVENT HANDLING
+--################################################################################--
+function f:OnEvent(event, ...)
+	self[event](self, event, ...)
+end
+
+function f:ADDON_LOADED(event, addOnName)
+  if addOnName ~= MACRO_NAME then return end
+	apkPrint("WARN", event .. " " .. addOnName)
+
+  Reload()
+end
+
 function f:BAG_CONTAINER_UPDATE(event)
-	apkPrint(event)
+	apkPrint("WARN", event)
   Update()
 end
 
 function f:BAG_NEW_ITEMS_UPDATED(event)
-	apkPrint(event)
+	apkPrint("WARN", event)
   Update()
 end
 
 function f:BAG_UPDATE_DELAYED(event)
-	apkPrint(event)
+	apkPrint("WARN", event)
   Update()
 end
 
 function f:PLAYER_LEAVE_COMBAT(event)
-	apkPrint(event)
+	apkPrint("WARN", event)
   Update()
 end
 
 function f:SKILL_LINE_SPECS_UNLOCKED(event)
-	apkPrint(event)
-  UpdateProfessionItems()
-  Update()
+	apkPrint("WARN", event)
+  Reload()
 end
 
 function f:SKILL_LINE_SPECS_RANKS_CHANGED(event)
-	apkPrint(event)
-  UpdateProfessionItems()
-  Update()
+	apkPrint("WARN", event)
+  Reload()
 end
 
 function f:GET_ITEM_INFO_RECEIVED(event, itemID, success)
   if ALL_PROFESSION_ITEMS[itemID] then
-	  apkPrint(event, "itemID:", itemID, "success:", success)
+	  apkPrint("WARN", event .. " itemID: " .. tostring(itemID) .. " success: " .. tostring(success))
     if (success) then
-      ALL_PROFESSION_ITEMS[itemID] = C_Item.GetItemNameByID(itemID)
+      local name = C_Item.GetItemNameByID(itemID)
+      if name then ALL_PROFESSION_ITEMS[itemID]["name"] = name end
       Update()
     end
   end
 end
 
+--################################################################################--
+-- REGISTER EVENT HANDLING
+--################################################################################--
+
 f:RegisterEvent("ADDON_LOADED") -- Init tables, get all item names
 f:RegisterEvent("BAG_CONTAINER_UPDATE") -- a bag changed? 
 f:RegisterEvent("BAG_NEW_ITEMS_UPDATED") -- looted something?
-f:RegisterEvent("GET_ITEM_INFO_RECEIVED") -- Called C_Item.GetItemName(), name is ready
 f:RegisterEvent("BAG_UPDATE_DELAYED") -- bunch of stuff in the bags updated
 f:RegisterEvent("PLAYER_LEAVE_COMBAT") -- if you looted something while fighting
 f:RegisterEvent("SKILL_LINE_SPECS_UNLOCKED") -- learn\drop a profession? maybe?
 f:RegisterEvent("SKILL_LINE_SPECS_RANKS_CHANGED") -- learn\drop a profession? maybe?
+f:RegisterEvent("GET_ITEM_INFO_RECEIVED") -- Called C_Item.GetItemName(), name is ready
 
 f:SetScript("OnEvent", f.OnEvent)
 
+--################################################################################--
+-- Slash commands
+--################################################################################--
 SlashCmdList["AUTOKNOWLEDGEMACRO"] = function(msg, editBox)
   if msg == "update" then
-    apkPrint("AKM: Forcing update...")
+    apkPrint("OK", "AKM: Forcing update...")
     Update()
-    apkPrint("AKM: Complete")
+    apkPrint("OK", "AKM: Complete")
   elseif msg == "debug" then
     debug = not debug
-    print("AKM: Debug ".. (debug and "on" or "off") )
+    apkPrint("OK", "AKM: Debug ".. (debug and "on" or "off") )
+  elseif msg == "pickup" then
+    apkPrint("OK", "AKM: Picking up macro")
+    PickupMacro(MACRO_NAME)
+  elseif msg == "reload" then
+    apkPrint("OK", "AKM: Updating professions")
+    Reload()
+  elseif msg == "help" or msg == nil or msg == "" then
+    print("AutoKnowledgeMacro commands: /autokm or /akm")
+    print("Options:")
+    print("/akm update       Rescan bags for items")
+    print("/akm debug        Toggle debug messages on/off")
+    print("/akm pickup       Grabs macro from Macro Dialog, drag it to an action bar")
+    print("/akm reload       Force reload of AKM")
+    print("/akm help         Display this help info")
   end
   end
