@@ -288,13 +288,13 @@ local TAILORING_PK_ITEMS = {
 -- this will collect the above arrays, keyed under their Enum.Profession value
 local professionMap = {}
 
+-- cache the Enum.Profession values I know
+local myProfession1 = -1
+local myProfession2 = -1
+
 -- This will hold a list of every profession item.  Key is item ID, value is {"profession" : Enum.Profession, "name" : name }
 local ALL_PROFESSION_ITEMS = {}
 
--- This will hold a list of profession items I can use
-local MY_PROFESSION_ITEMS = {}
-
--- Need to slashcmd this later
 local debug = false
 
 professionMap[Enum.Profession.Alchemy] = ALCHEMY_PK_ITEMS
@@ -318,34 +318,10 @@ local function apkPrint(level, ...)
     if DLAPI then
       DLAPI.DebugLog(MACRO_NAME, level .."~".. res)
     else
-    print(...)
-  end
-end
-end
-
---################################################################################--
--- return the profession enum if it is an item
---################################################################################--
-local function GetProfessionFromItemID(itemID)
-  return ALL_PROFESSIONS_FROM_ID[itemID]
-end
-
---################################################################################--
--- return true if I know this Enum.Profession
---################################################################################--
-local function ProfessionLearned(profEnum)
-  local prof1, prof2 = GetProfessions()
-  local profs = {prof1, prof2}
-  for _, prof in ipairs(profs) do
-    if prof ~= nil then
-      local profession_name, _, _, _, _, _, skillLine, _ = GetProfessionInfo(prof)
-      local info = C_TradeSkillUI.GetProfessionInfoBySkillLineID(skillLine)
-      if info and info.profession and info.profession == profEnum then return true end
+      print(...)
     end
   end
-  return false
 end
-
 
 --################################################################################--
 -- return the macro index, create one if we need
@@ -363,28 +339,29 @@ local f = CreateFrame("Frame")
 --################################################################################--
 -- Builds a list of items useable by the professions I have
 --################################################################################--
-local function UpdateProfessionItems()
-  apkPrint("WARN", "UpdateProfessionItems start...")
+local function UpdateProfessions()
+  apkPrint("WARN", "UpdateProfessions start")
   local prof1, prof2 = GetProfessions()
-  MY_PROFESSION_ITEMS = {}
 
-  -- populate itemSet
-  local profs = {prof1, prof2}
-  for _, prof in ipairs(profs) do
-    if prof ~= nil then
-      local profession_name, _, _, _, _, _, skillLine, _ = GetProfessionInfo(prof)
-      local info = C_TradeSkillUI.GetProfessionInfoBySkillLineID(skillLine)
-      apkPrint("ERR", "Skill line " .. tostring(skillLine) .. " and profession " .. profession_name .. " found")
-      if info.profession then
-        apkPrint("WARN", "Enum.Profession = " .. tostring(info.profession) )
-        for _, l in ipairs(professionMap[info.profession]) do MY_PROFESSION_ITEMS[l] = true end
-      else
-        apkPrint("ERR", "Skill line " .. tostring(skillLine) .. " did not return any info")
-      end
-    end
+  if prof1 then
+    local profession_name, _, _, _, _, _, skillLine, _ = GetProfessionInfo(prof1)
+    local info = C_TradeSkillUI.GetProfessionInfoBySkillLineID(skillLine)
+    apkPrint("ERR", "Skill line " .. tostring(skillLine) .. " and profession " .. profession_name .. " found")
+    if info.profession then myProfession1 = info.profession else myProfession1 = -1 end
+  else
+    myProfession1 = -1
   end
 
-  apkPrint("WARN", "UpdateProfessionItems end")
+  if prof2 then
+    local profession_name, _, _, _, _, _, skillLine, _ = GetProfessionInfo(prof2)
+    local info = C_TradeSkillUI.GetProfessionInfoBySkillLineID(skillLine)
+    apkPrint("ERR", "Skill line " .. tostring(skillLine) .. " and profession " .. profession_name .. " found")
+    if info.profession then myProfession2 = info.profession else myProfession2 = -1 end
+  else
+    myProfession2 = -1
+  end
+
+  apkPrint("WARN", "UpdateProfessions end")
 end
 
 --################################################################################--
@@ -394,34 +371,32 @@ end
 local function Update()
   -- make sure we have a macro to update
   local macroSlot = GetMacroSlot()
-  local foundIt = false
+
+  -- make sure our professions are found
+  if myProfession1 == -1 and myProfession2 == -1 then UpdateProfessions() end
+
+  -- if we don't have any professions, don't bother
+  if myProfession1 ~= -1 or myProfession2 ~= -1 then
   apkPrint("WARN", "Update start...")
   for _, tabID in ipairs(BAGS) do
     for slot=1, C_Container.GetContainerNumSlots(tabID) do
       local info = C_Container.GetContainerItemInfo(tabID, slot)
-      if info and MY_PROFESSION_ITEMS[info.itemID] then
-        foundIt = true
-      elseif info and ALL_PROFESSION_ITEMS[info.itemID] then
+        if info and ALL_PROFESSION_ITEMS[info.itemID] then
         local profID = ALL_PROFESSION_ITEMS[info.itemID]["profession"]
-        if ProfessionLearned(profID) then
-          apkPrint("ERR", "Item " .. tostring(info.itemID) .. " was in ALL_PROFESSIONS but not MY_PROFESSIONS")
-          MY_PROFESSION_ITEMS[info.itemID] = true
-          foundIt = true
+          if profID == myProfession1 or profID == myProfession2 then
+            local displayText = C_Item.GetItemNameByID(info.itemID) or tostring(info.itemID)
+            apkPrint ("OK", "Setting Auto PK to " .. displayText)
+            local body = "#showtooltip ".. displayText .. "\n/use item:" .. tostring(info.itemID)
+            EditMacro(macroSlot, MACRO_NAME, nil, body)
+            apkPrint("WARN", "Update end, found " .. displayText)
+            return
+          end
         end
-      end
-
-      if foundIt then
-        local displayText = C_Item.GetItemNameByID(info.itemID) or tostring(info.itemID)
-        apkPrint ("OK", "Setting Auto PK to " .. displayText)
-        local body = "#showtooltip ".. displayText .. "\n/use item:" .. tostring(info.itemID)
-        EditMacro(macroSlot, MACRO_NAME, nil, body)
-        apkPrint("WARN", "Update end, found " .. displayText)
-        return
       end
     end
   end
 
-  -- no items found, leave it alone
+  -- no items found or no professions found, leave it alone
   apkPrint("WARN", "Update end, nothing found")
   EditMacro(macroSlot, MACRO_NAME, "INV_Misc_QuestionMark", "/akm update")
 end
@@ -449,7 +424,7 @@ local function Reload()
     end
   end
 
-  UpdateProfessionItems()
+  UpdateProfessions()
   Update()
 end
 
@@ -549,4 +524,4 @@ SlashCmdList["AUTOKNOWLEDGEMACRO"] = function(msg, editBox)
     print("/akm reload       Force reload of AKM")
     print("/akm help         Display this help info")
   end
-  end
+end
