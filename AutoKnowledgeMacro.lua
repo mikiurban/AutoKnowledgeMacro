@@ -86,7 +86,7 @@ local ENCHANTING_PK_ITEMS = {
   263464, -- Thalassian Enchanter's Folio
   -- Disenchanting
   267654, -- Swirling Arcane Essence
-  268655, -- Brimming Mana Shard
+  267655, -- Brimming Mana Shard
 }
 local ENGINEERING_PK_ITEMS = {
   -- MID Treasures
