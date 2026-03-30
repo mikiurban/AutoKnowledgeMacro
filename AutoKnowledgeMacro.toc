@@ -1,5 +1,5 @@
 ## Interface: 120001
-## Version: 1.1.0
+## Version: 1.1.1
 ## Title: AutoKnowledgeMacro
 ## Notes: Creates and updates a macro for using Profession Knowledge items as you collect them
 ## Author: Miki Urban
