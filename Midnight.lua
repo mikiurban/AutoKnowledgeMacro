@@ -76,6 +76,7 @@ local ENCHANTING_PK_ITEMS = {
   -- Weekly Quest
   263464, -- Thalassian Enchanter's Folio
   -- Disenchanting
+  267653, -- Glimmering Powder
   267654, -- Swirling Arcane Essence
   267655, -- Brimming Mana Shard
 }
