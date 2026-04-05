@@ -277,6 +277,10 @@ local TAILORING_PK_ITEMS = {
   -- Weekly quest
   263460, -- Thalassian Tailor's Notebook
 }
+local ALL_PROFESSION_ITEMS = {
+  227713, -- Artisan's Consortium Payout
+  246585, -- Artisan's Consortium Payout
+}
 
 T.professionMap[Enum.Profession.Alchemy][Enum.ExpansionLevel.Midnight] = ALCHEMY_PK_ITEMS
 T.professionMap[Enum.Profession.Blacksmithing][Enum.ExpansionLevel.Midnight] = BLACKSMITH_PK_ITEMS
@@ -289,3 +293,4 @@ T.professionMap[Enum.Profession.Leatherworking][Enum.ExpansionLevel.Midnight] = 
 T.professionMap[Enum.Profession.Mining][Enum.ExpansionLevel.Midnight] = MINING_PK_ITEMS
 T.professionMap[Enum.Profession.Skinning][Enum.ExpansionLevel.Midnight] = SKINNING_PK_ITEMS
 T.professionMap[Enum.Profession.Tailoring][Enum.ExpansionLevel.Midnight] = TAILORING_PK_ITEMS
+T.professionMap[T.ENUM_PROFESSION_ALL][Enum.ExpansionLevel.Midnight] = ALL_PROFESSION_ITEMS

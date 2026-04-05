@@ -222,7 +222,9 @@ local TAILORING_PK_ITEMS = {
   232502, -- Undermine Treatise on Tailoring
   235855, -- Ethereal Tome of Tailoring Knowledge
 }
-
+local ALL_PROFESSION_ITEMS = {
+  --227713, -- Artisan's Consortium Payout
+}
 T.professionMap[Enum.Profession.Alchemy][Enum.ExpansionLevel.WarWithin] = ALCHEMY_PK_ITEMS
 T.professionMap[Enum.Profession.Blacksmithing][Enum.ExpansionLevel.WarWithin] = BLACKSMITH_PK_ITEMS
 T.professionMap[Enum.Profession.Enchanting][Enum.ExpansionLevel.WarWithin] = ENCHANTING_PK_ITEMS
@@ -234,3 +236,4 @@ T.professionMap[Enum.Profession.Leatherworking][Enum.ExpansionLevel.WarWithin] =
 T.professionMap[Enum.Profession.Mining][Enum.ExpansionLevel.WarWithin] = MINING_PK_ITEMS
 T.professionMap[Enum.Profession.Skinning][Enum.ExpansionLevel.WarWithin] = SKINNING_PK_ITEMS
 T.professionMap[Enum.Profession.Tailoring][Enum.ExpansionLevel.WarWithin] = TAILORING_PK_ITEMS
+T.professionMap[T.ENUM_PROFESSION_ALL][Enum.ExpansionLevel.WarWithin] = ALL_PROFESSION_ITEMS

@@ -12,6 +12,7 @@ local BAGS = {
 
 -- this will collect the above arrays, keyed under their Enum.Profession value
 T.professionMap = {}
+T.ENUM_PROFESSION_ALL = 9999
 local professionMap = T.professionMap
 
 -- cache the Enum.Profession values I know
@@ -34,6 +35,7 @@ professionMap[Enum.Profession.Leatherworking] = {}
 professionMap[Enum.Profession.Mining] = {}
 professionMap[Enum.Profession.Skinning] = {}
 professionMap[Enum.Profession.Tailoring] = {}
+professionMap[T.ENUM_PROFESSION_ALL] = {}
 
 --################################################################################--
 -- Only prints the message if debug == true
@@ -90,13 +92,24 @@ local function UpdateProfessions()
   apkPrint("WARN", "UpdateProfessions end")
 end
 
+local UpdateInProgress = false
+
 --################################################################################--
 -- This function updates the macro to the first item found for these professions
 -- Clears the macro if there is nothing found
 --################################################################################--
 local function Update()
+  if UpdateInProgress then
+    apkPrint("WARN", "Update already in progress")
+    return
+  else
   apkPrint("WARN", "Update start...")
+  end
 
+  UpdateInProgress = true
+
+  -- Give the addon some time for all the triggers to collect
+  C_Timer.After(0.25, function()
   -- make sure we have a macro to update
   local macroSlot = GetMacroSlot()
 
@@ -110,12 +123,13 @@ local function Update()
         local info = C_Container.GetContainerItemInfo(tabID, slot)
         if info and ALL_PROFESSION_ITEMS[info.itemID] then
           local profID = ALL_PROFESSION_ITEMS[info.itemID]["profession"]
-          if profID == myProfession1 or profID == myProfession2 then
+            if profID == myProfession1 or profID == myProfession2 or profID == T.ENUM_PROFESSION_ALL then
             local displayText = C_Item.GetItemNameByID(info.itemID) or tostring(info.itemID)
             apkPrint ("OK", "Setting Auto PK to " .. displayText)
             local body = "#showtooltip ".. displayText .. "\n/use item:" .. tostring(info.itemID)
             EditMacro(macroSlot, MACRO_NAME, nil, body)
             apkPrint("WARN", "Update end, found " .. displayText)
+              UpdateInProgress = false
             return
           end
         end
@@ -126,6 +140,8 @@ local function Update()
   -- no items found or no professions found, leave it alone
   apkPrint("WARN", "Update end, nothing found")
   EditMacro(macroSlot, MACRO_NAME, "INV_Misc_QuestionMark", "/akm update")
+    UpdateInProgress = false
+  end)
 end
 
 --################################################################################--
