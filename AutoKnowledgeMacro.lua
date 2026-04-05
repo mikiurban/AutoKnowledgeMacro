@@ -187,34 +187,36 @@ function f:ADDON_LOADED(event, addOnName)
   Reload()
 end
 
-function f:BAG_CONTAINER_UPDATE(event)
-  apkPrint("WARN", event)
+function f:BAG_CONTAINER_UPDATE(event, ...)
+  apkPrint("WARN", event, ...)
   Update()
 end
 
-function f:BAG_NEW_ITEMS_UPDATED(event)
-  apkPrint("WARN", event)
+function f:BAG_NEW_ITEMS_UPDATED(event, ...)
+  apkPrint("WARN", event, ...)
   Update()
 end
 
-function f:BAG_UPDATE_DELAYED(event)
-  apkPrint("WARN", event)
+function f:BAG_UPDATE_DELAYED(event, ...)
+  apkPrint("WARN", event, ...)
   Update()
 end
 
-function f:PLAYER_LEAVE_COMBAT(event)
-  apkPrint("WARN", event)
+function f:PLAYER_LEAVE_COMBAT(event, ...)
+  apkPrint("WARN", event, ...)
   Update()
 end
 
-function f:SKILL_LINE_SPECS_UNLOCKED(event)
-  apkPrint("WARN", event)
-  Reload()
+function f:SKILL_LINE_SPECS_UNLOCKED(event, ...)
+  apkPrint("WARN", event, ...)
+  UpdateProfessions()
+  Update()
 end
 
-function f:SKILL_LINE_SPECS_RANKS_CHANGED(event)
-  apkPrint("WARN", event)
-  Reload()
+function f:SKILL_LINE_SPECS_RANKS_CHANGED(event, ...)
+  apkPrint("WARN", event, ...)
+  UpdateProfessions()
+  Update()
 end
 
 function f:GET_ITEM_INFO_RECEIVED(event, itemID, success)
