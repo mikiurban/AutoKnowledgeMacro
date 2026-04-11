@@ -102,14 +102,11 @@ local function Update()
   if UpdateInProgress then
     apkPrint("WARN", "Update already in progress")
     return
-  else
-  apkPrint("WARN", "Update start...")
   end
 
   UpdateInProgress = true
+  apkPrint("WARN", "Update start...")
 
-  -- Give the addon some time for all the triggers to collect
-  C_Timer.After(0.25, function()
   -- make sure we have a macro to update
   local macroSlot = GetMacroSlot()
 
@@ -140,6 +137,8 @@ local function Update()
   -- no items found or no professions found, leave it alone
   apkPrint("WARN", "Update end, nothing found")
   EditMacro(macroSlot, MACRO_NAME, "INV_Misc_QuestionMark", "/akm update")
+  -- Give the addon some time for all the triggers to collect
+  C_Timer.After(0.25, function()
     UpdateInProgress = false
   end)
 end
