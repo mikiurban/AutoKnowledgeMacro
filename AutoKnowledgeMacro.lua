@@ -15,12 +15,19 @@ T.professionMap = {}
 T.ENUM_PROFESSION_ALL = 9999
 local professionMap = T.professionMap
 
+-- this holds all the item ids that can be flagged as complete by quests, and their quest ids
+T.questFlaggedItems = {}
+local questFlaggedItems = T.questFlaggedItems
+
 -- cache the Enum.Profession values I know
 local myProfession1 = nil
 local myProfession2 = nil
 
 -- This will hold a list of every profession item.  Key is item ID, value is {"profession" : Enum.Profession, "name" : name }
 local ALL_PROFESSION_ITEMS = {}
+
+-- This will hold a list of every profession item that can be disabled by a quest, like treatises.  Key is item ID in string, val is quest ID to check
+local ALL_QUEST_FLAGGED_ITEMS = {}
 
 local debug = false
 
@@ -63,6 +70,16 @@ local function GetMacroSlot()
 end
 
 local f = CreateFrame("Frame")
+
+--################################################################################--
+-- Returns true if this is a treatise and I already learned it this week
+--################################################################################--
+local function IsItemUsed(itemID)
+  if itemID and ALL_QUEST_FLAGGED_ITEMS[tostring(itemID)] then
+    return C_QuestLog.IsQuestFlaggedCompleted(ALL_QUEST_FLAGGED_ITEMS[tostring(itemID)])
+  end
+  return false
+end
 
 --################################################################################--
 -- Builds a list of items useable by the professions I have
@@ -119,6 +136,9 @@ local function Update()
       for slot=1, C_Container.GetContainerNumSlots(tabID) do
         local info = C_Container.GetContainerItemInfo(tabID, slot)
         if info and ALL_PROFESSION_ITEMS[info.itemID] then
+          if IsItemUsed(info.itemID) then
+            apkPrint ("OK", "Already used " .. tostring(info.itemID) .. " this week");
+          else
           local profID = ALL_PROFESSION_ITEMS[info.itemID]["profession"]
             if profID == myProfession1 or profID == myProfession2 or profID == T.ENUM_PROFESSION_ALL then
             local displayText = C_Item.GetItemNameByID(info.itemID) or tostring(info.itemID)
@@ -132,6 +152,7 @@ local function Update()
         end
       end
     end
+  end
   end
 
   -- no items found or no professions found, leave it alone
@@ -168,8 +189,23 @@ local function Reload()
     end
   end
 
+  ALL_QUEST_FLAGGED_ITEMS = {}
+  for professionEnum, expansionList in pairs(questFlaggedItems) do
+    for _, itemQuestPair in ipairs(expansionList) do
+      local key = tostring(itemQuestPair.itemID)
+      apkPrint("OK", "item ID: " .. key .. ", questID: " .. tostring(itemQuestPair.questID))
+      ALL_QUEST_FLAGGED_ITEMS[key] = itemQuestPair.questID
+    end
+  end
+
   UpdateProfessions()
   Update()
+
+  -- Weekly resets for Treatises
+  local seconds = C_DateAndTime.GetSecondsUntilWeeklyReset()
+  C_Timer.After(seconds, function()
+    Reload()
+  end)
 end
 
 --################################################################################--

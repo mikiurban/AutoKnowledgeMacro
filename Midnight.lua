@@ -282,6 +282,21 @@ local ALL_PROFESSION_ITEMS = {
   246585, -- Artisan's Consortium Payout
 }
 
+-- Map of Treatises and the QuestIDs flagged when you learn them
+local TREATISES_AND_QUESTIDS = {
+  { itemID = 245755, questID = 95127 }, -- Thalassian Treatise on Alchemy
+  { itemID = 245763, questID = 95128 }, -- Thalassian Treatise on Blacksmithing
+  { itemID = 245759, questID = 95129 }, -- Thalassian Treatise on Enchanting
+  { itemID = 245809, questID = 95138 }, -- Thalassian Treatise on Engineering
+  { itemID = 245761, questID = 95130 }, -- Thalassian Treatise on Herbalism
+  { itemID = 245757, questID = 95131 }, -- Thalassian Treatise on Inscription
+  { itemID = 245760, questID = 95133 }, -- Thalassian Treatise on Jewelcrafting
+  { itemID = 245758, questID = 95134 }, -- Thalassian Treatise on Leatherworking
+  { itemID = 245762, questID = 95135 }, -- Thalassian Treatise on Mining
+  { itemID = 245828, questID = 95136 }, -- Thalassian Treatise on Skinning
+  { itemID = 245756, questID = 95137 }, -- Thalassian Treatise on Tailoring
+}
+
 T.professionMap[Enum.Profession.Alchemy][Enum.ExpansionLevel.Midnight] = ALCHEMY_PK_ITEMS
 T.professionMap[Enum.Profession.Blacksmithing][Enum.ExpansionLevel.Midnight] = BLACKSMITH_PK_ITEMS
 T.professionMap[Enum.Profession.Enchanting][Enum.ExpansionLevel.Midnight] = ENCHANTING_PK_ITEMS
@@ -294,3 +309,4 @@ T.professionMap[Enum.Profession.Mining][Enum.ExpansionLevel.Midnight] = MINING_P
 T.professionMap[Enum.Profession.Skinning][Enum.ExpansionLevel.Midnight] = SKINNING_PK_ITEMS
 T.professionMap[Enum.Profession.Tailoring][Enum.ExpansionLevel.Midnight] = TAILORING_PK_ITEMS
 T.professionMap[T.ENUM_PROFESSION_ALL][Enum.ExpansionLevel.Midnight] = ALL_PROFESSION_ITEMS
+T.questFlaggedItems[Enum.ExpansionLevel.Midnight] = TREATISES_AND_QUESTIDS

@@ -225,6 +225,22 @@ local TAILORING_PK_ITEMS = {
 local ALL_PROFESSION_ITEMS = {
   --227713, -- Artisan's Consortium Payout
 }
+
+-- Map of Treatises and the QuestIDs flagged when you learn them
+local TREATISES_AND_QUESTIDS = {
+  { itemID = 222546, questID = 82633 }, -- Algari Treatise on Alchemy
+  { itemID = 222547, questID = 83735 }, -- Algari Treatise on Tailoring
+  { itemID = 222548, questID = 83730 }, -- Algari Treatise on Inscription
+  { itemID = 222549, questID = 83732 }, -- Algari Treatise on Leatherworking
+  { itemID = 222550, questID = 83727 }, -- Algari Treatise on Enchanting
+  { itemID = 222551, questID = 83731 }, -- Algari Treatise on Jewelcrafting
+  { itemID = 222552, questID = 83729 }, -- Algari Treatise on Herbalism
+  { itemID = 222553, questID = 83733 }, -- Algari Treatise on Mining
+  { itemID = 222554, questID = 83726 }, -- Algari Treatise on Blacksmithing
+  { itemID = 222621, questID = 83728 }, -- Algari Treatise on Engineering
+  { itemID = 222649, questID = 83734 }, -- Algari Treatise on Skinning
+}
+
 T.professionMap[Enum.Profession.Alchemy][Enum.ExpansionLevel.WarWithin] = ALCHEMY_PK_ITEMS
 T.professionMap[Enum.Profession.Blacksmithing][Enum.ExpansionLevel.WarWithin] = BLACKSMITH_PK_ITEMS
 T.professionMap[Enum.Profession.Enchanting][Enum.ExpansionLevel.WarWithin] = ENCHANTING_PK_ITEMS
@@ -237,3 +253,4 @@ T.professionMap[Enum.Profession.Mining][Enum.ExpansionLevel.WarWithin] = MINING_
 T.professionMap[Enum.Profession.Skinning][Enum.ExpansionLevel.WarWithin] = SKINNING_PK_ITEMS
 T.professionMap[Enum.Profession.Tailoring][Enum.ExpansionLevel.WarWithin] = TAILORING_PK_ITEMS
 T.professionMap[T.ENUM_PROFESSION_ALL][Enum.ExpansionLevel.WarWithin] = ALL_PROFESSION_ITEMS
+T.questFlaggedItems[Enum.ExpansionLevel.WarWithin] = TREATISES_AND_QUESTIDS
