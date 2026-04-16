@@ -1,4 +1,4 @@
-local _, T = ...
+local _, AutoKnowledgeMacro = ...
 local ALCHEMY_PK_ITEMS = {
   222546, -- Algari Treatise on Alchemy
   224024, -- Theories of Bodily Transmutation, Chapter 8
@@ -241,16 +241,16 @@ local TREATISES_AND_QUESTIDS = {
   { itemID = 222649, questID = 83734 }, -- Algari Treatise on Skinning
 }
 
-T.professionMap[Enum.Profession.Alchemy][Enum.ExpansionLevel.WarWithin] = ALCHEMY_PK_ITEMS
-T.professionMap[Enum.Profession.Blacksmithing][Enum.ExpansionLevel.WarWithin] = BLACKSMITH_PK_ITEMS
-T.professionMap[Enum.Profession.Enchanting][Enum.ExpansionLevel.WarWithin] = ENCHANTING_PK_ITEMS
-T.professionMap[Enum.Profession.Engineering][Enum.ExpansionLevel.WarWithin] = ENGINEERING_PK_ITEMS
-T.professionMap[Enum.Profession.Herbalism][Enum.ExpansionLevel.WarWithin] = HERBALISM_PK_ITEMS
-T.professionMap[Enum.Profession.Inscription][Enum.ExpansionLevel.WarWithin] = INSCRIPTION_PK_ITEMS
-T.professionMap[Enum.Profession.Jewelcrafting][Enum.ExpansionLevel.WarWithin] = JEWELCRAFTING_PK_ITEMS
-T.professionMap[Enum.Profession.Leatherworking][Enum.ExpansionLevel.WarWithin] = LEATHERWORKING_PK_ITEMS
-T.professionMap[Enum.Profession.Mining][Enum.ExpansionLevel.WarWithin] = MINING_PK_ITEMS
-T.professionMap[Enum.Profession.Skinning][Enum.ExpansionLevel.WarWithin] = SKINNING_PK_ITEMS
-T.professionMap[Enum.Profession.Tailoring][Enum.ExpansionLevel.WarWithin] = TAILORING_PK_ITEMS
-T.professionMap[T.ENUM_PROFESSION_ALL][Enum.ExpansionLevel.WarWithin] = ALL_PROFESSION_ITEMS
-T.questFlaggedItems[Enum.ExpansionLevel.WarWithin] = TREATISES_AND_QUESTIDS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Alchemy][Enum.ExpansionLevel.WarWithin] = ALCHEMY_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Blacksmithing][Enum.ExpansionLevel.WarWithin] = BLACKSMITH_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Enchanting][Enum.ExpansionLevel.WarWithin] = ENCHANTING_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Engineering][Enum.ExpansionLevel.WarWithin] = ENGINEERING_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Herbalism][Enum.ExpansionLevel.WarWithin] = HERBALISM_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Inscription][Enum.ExpansionLevel.WarWithin] = INSCRIPTION_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Jewelcrafting][Enum.ExpansionLevel.WarWithin] = JEWELCRAFTING_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Leatherworking][Enum.ExpansionLevel.WarWithin] = LEATHERWORKING_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Mining][Enum.ExpansionLevel.WarWithin] = MINING_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Skinning][Enum.ExpansionLevel.WarWithin] = SKINNING_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Tailoring][Enum.ExpansionLevel.WarWithin] = TAILORING_PK_ITEMS
+AutoKnowledgeMacro.professionMap[AutoKnowledgeMacro.ENUM_PROFESSION_ALL][Enum.ExpansionLevel.WarWithin] = ALL_PROFESSION_ITEMS
+AutoKnowledgeMacro.questFlaggedItems[Enum.ExpansionLevel.WarWithin] = TREATISES_AND_QUESTIDS

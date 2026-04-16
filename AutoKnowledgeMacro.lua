@@ -1,4 +1,5 @@
-local MACRO_NAME, T = ...
+local MACRO_NAME, AutoKnowledgeMacro = ...
+
 -- local MACRO_NAME = "AutoKnowledgeMacro"
 if DLAPI then DLAPI.DebugLog(MACRO_NAME, "OK~"..MACRO_NAME.." loading...") end
 SLASH_AUTOKNOWLEDGEMACRO1, SLASH_AUTOKNOWLEDGEMACRO2 = '/autokm', '/akm'
@@ -11,13 +12,13 @@ local BAGS = {
 }
 
 -- this will collect the above arrays, keyed under their Enum.Profession value
-T.professionMap = {}
-T.ENUM_PROFESSION_ALL = 9999
-local professionMap = T.professionMap
+AutoKnowledgeMacro.professionMap = {}
+AutoKnowledgeMacro.ENUM_PROFESSION_ALL = 9999
+local professionMap = AutoKnowledgeMacro.professionMap
 
 -- this holds all the item ids that can be flagged as complete by quests, and their quest ids
-T.questFlaggedItems = {}
-local questFlaggedItems = T.questFlaggedItems
+AutoKnowledgeMacro.questFlaggedItems = {}
+local questFlaggedItems = AutoKnowledgeMacro.questFlaggedItems
 
 -- cache the Enum.Profession values I know
 local myProfession1 = nil
@@ -42,7 +43,7 @@ professionMap[Enum.Profession.Leatherworking] = {}
 professionMap[Enum.Profession.Mining] = {}
 professionMap[Enum.Profession.Skinning] = {}
 professionMap[Enum.Profession.Tailoring] = {}
-professionMap[T.ENUM_PROFESSION_ALL] = {}
+professionMap[AutoKnowledgeMacro.ENUM_PROFESSION_ALL] = {}
 
 --################################################################################--
 -- Only prints the message if debug == true
@@ -56,6 +57,24 @@ local function apkPrint(level, ...)
       print(...)
     end
   end
+end
+
+--################################################################################--
+-- "Simple" version of  "C_Item.GetItemNameByID()" 
+--################################################################################--
+local function GetItemNameByID(itemID)
+  local alreadyName = C_Item.GetItemNameByID(itemID)
+  if alreadyName then return alreadyName end
+
+  local item = Item:CreateFromItemID(itemID)
+
+  item:ContinueOnItemLoad(function()
+    local id = item:GetItemID()
+    local name = item:GetItemName()
+    if name then ALL_PROFESSION_ITEMS[id]["name"] = name end
+    AutoKnowledgeMacro:Update()
+  end)
+  return nil
 end
 
 --################################################################################--
@@ -115,7 +134,7 @@ local UpdateInProgress = false
 -- This function updates the macro to the first item found for these professions
 -- Clears the macro if there is nothing found
 --################################################################################--
-local function Update()
+function AutoKnowledgeMacro:Update()
   if UpdateInProgress then
     apkPrint("WARN", "Update already in progress")
     return
@@ -140,8 +159,8 @@ local function Update()
             apkPrint ("OK", "Already used " .. tostring(info.itemID) .. " this week");
           else
           local profID = ALL_PROFESSION_ITEMS[info.itemID]["profession"]
-            if profID == myProfession1 or profID == myProfession2 or profID == T.ENUM_PROFESSION_ALL then
-            local displayText = C_Item.GetItemNameByID(info.itemID) or tostring(info.itemID)
+            if profID == myProfession1 or profID == myProfession2 or profID == AutoKnowledgeMacro.ENUM_PROFESSION_ALL then
+              local displayText = GetItemNameByID(info.itemID) or tostring(info.itemID)
             apkPrint ("OK", "Setting Auto PK to " .. displayText)
             local body = "#showtooltip ".. displayText .. "\n/use item:" .. tostring(info.itemID)
             EditMacro(macroSlot, MACRO_NAME, nil, body)
@@ -183,7 +202,7 @@ local function Reload()
           local id = item:GetItemID()
           local name = item:GetItemName()
           if name then ALL_PROFESSION_ITEMS[id]["name"] = name end
-          Update()
+          AutoKnowledgeMacro:Update()
         end)
       end
     end
@@ -199,7 +218,7 @@ local function Reload()
   end
 
   UpdateProfessions()
-  Update()
+  AutoKnowledgeMacro:Update()
 
   -- Weekly resets for Treatises
   local seconds = C_DateAndTime.GetSecondsUntilWeeklyReset()
@@ -224,34 +243,34 @@ end
 
 function f:BAG_CONTAINER_UPDATE(event, ...)
   apkPrint("WARN", event, ...)
-  Update()
+  AutoKnowledgeMacro:Update()
 end
 
 function f:BAG_NEW_ITEMS_UPDATED(event, ...)
   apkPrint("WARN", event, ...)
-  Update()
+  AutoKnowledgeMacro:Update()
 end
 
 function f:BAG_UPDATE_DELAYED(event, ...)
   apkPrint("WARN", event, ...)
-  Update()
+  AutoKnowledgeMacro:Update()
 end
 
 function f:PLAYER_LEAVE_COMBAT(event, ...)
   apkPrint("WARN", event, ...)
-  Update()
+  AutoKnowledgeMacro:Update()
 end
 
 function f:SKILL_LINE_SPECS_UNLOCKED(event, ...)
   apkPrint("WARN", event, ...)
   UpdateProfessions()
-  Update()
+  AutoKnowledgeMacro:Update()
 end
 
 function f:SKILL_LINE_SPECS_RANKS_CHANGED(event, ...)
   apkPrint("WARN", event, ...)
   UpdateProfessions()
-  Update()
+  AutoKnowledgeMacro:Update()
 end
 
 function f:GET_ITEM_INFO_RECEIVED(event, itemID, success)
@@ -260,7 +279,7 @@ function f:GET_ITEM_INFO_RECEIVED(event, itemID, success)
     if (success) then
       local name = C_Item.GetItemNameByID(itemID)
       if name then ALL_PROFESSION_ITEMS[itemID]["name"] = name end
-      Update()
+      AutoKnowledgeMacro:Update()
     end
   end
 end
@@ -286,7 +305,7 @@ f:SetScript("OnEvent", f.OnEvent)
 SlashCmdList["AUTOKNOWLEDGEMACRO"] = function(msg, editBox)
   if msg == "update" then
     apkPrint("OK", "AKM: Forcing update...")
-    Update()
+    AutoKnowledgeMacro:Update()
     apkPrint("OK", "AKM: Complete")
     print("AutoKnowledgeMacro: Update complete")
   elseif msg == "debug" then

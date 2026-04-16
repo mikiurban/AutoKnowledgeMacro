@@ -1,4 +1,4 @@
-local _, T = ...
+local _, AutoKnowledgeMacro = ...
 local ALCHEMY_PK_ITEMS = {
   -- MID Treasures
   238532, -- Vial of Eversong Oddities
@@ -297,16 +297,16 @@ local TREATISES_AND_QUESTIDS = {
   { itemID = 245756, questID = 95137 }, -- Thalassian Treatise on Tailoring
 }
 
-T.professionMap[Enum.Profession.Alchemy][Enum.ExpansionLevel.Midnight] = ALCHEMY_PK_ITEMS
-T.professionMap[Enum.Profession.Blacksmithing][Enum.ExpansionLevel.Midnight] = BLACKSMITH_PK_ITEMS
-T.professionMap[Enum.Profession.Enchanting][Enum.ExpansionLevel.Midnight] = ENCHANTING_PK_ITEMS
-T.professionMap[Enum.Profession.Engineering][Enum.ExpansionLevel.Midnight] = ENGINEERING_PK_ITEMS
-T.professionMap[Enum.Profession.Herbalism][Enum.ExpansionLevel.Midnight] = HERBALISM_PK_ITEMS
-T.professionMap[Enum.Profession.Inscription][Enum.ExpansionLevel.Midnight] = INSCRIPTION_PK_ITEMS
-T.professionMap[Enum.Profession.Jewelcrafting][Enum.ExpansionLevel.Midnight] = JEWELCRAFTING_PK_ITEMS
-T.professionMap[Enum.Profession.Leatherworking][Enum.ExpansionLevel.Midnight] = LEATHERWORKING_PK_ITEMS
-T.professionMap[Enum.Profession.Mining][Enum.ExpansionLevel.Midnight] = MINING_PK_ITEMS
-T.professionMap[Enum.Profession.Skinning][Enum.ExpansionLevel.Midnight] = SKINNING_PK_ITEMS
-T.professionMap[Enum.Profession.Tailoring][Enum.ExpansionLevel.Midnight] = TAILORING_PK_ITEMS
-T.professionMap[T.ENUM_PROFESSION_ALL][Enum.ExpansionLevel.Midnight] = ALL_PROFESSION_ITEMS
-T.questFlaggedItems[Enum.ExpansionLevel.Midnight] = TREATISES_AND_QUESTIDS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Alchemy][Enum.ExpansionLevel.Midnight] = ALCHEMY_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Blacksmithing][Enum.ExpansionLevel.Midnight] = BLACKSMITH_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Enchanting][Enum.ExpansionLevel.Midnight] = ENCHANTING_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Engineering][Enum.ExpansionLevel.Midnight] = ENGINEERING_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Herbalism][Enum.ExpansionLevel.Midnight] = HERBALISM_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Inscription][Enum.ExpansionLevel.Midnight] = INSCRIPTION_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Jewelcrafting][Enum.ExpansionLevel.Midnight] = JEWELCRAFTING_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Leatherworking][Enum.ExpansionLevel.Midnight] = LEATHERWORKING_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Mining][Enum.ExpansionLevel.Midnight] = MINING_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Skinning][Enum.ExpansionLevel.Midnight] = SKINNING_PK_ITEMS
+AutoKnowledgeMacro.professionMap[Enum.Profession.Tailoring][Enum.ExpansionLevel.Midnight] = TAILORING_PK_ITEMS
+AutoKnowledgeMacro.professionMap[AutoKnowledgeMacro.ENUM_PROFESSION_ALL][Enum.ExpansionLevel.Midnight] = ALL_PROFESSION_ITEMS
+AutoKnowledgeMacro.questFlaggedItems[Enum.ExpansionLevel.Midnight] = TREATISES_AND_QUESTIDS
