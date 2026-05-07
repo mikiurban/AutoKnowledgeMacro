@@ -24,8 +24,11 @@ local questFlaggedItems = AutoKnowledgeMacro.questFlaggedItems
 local myProfession1 = nil
 local myProfession2 = nil
 
--- This will hold a list of every profession item.  Key is item ID, value is {"profession" : Enum.Profession, "name" : name }
+-- This will hold a list of every profession item.  Key is item ID, value is {"profession" : Enum.Profession, "name" : name, "nameFound" : true/false }
 local ALL_PROFESSION_ITEMS = {}
+local KEY_NAME = "name"
+local KEY_NAMEFOUND = "nameFound"
+local KEY_PROFESSION = "profession"
 
 -- This will hold a list of every profession item that can be disabled by a quest, like treatises.  Key is item ID in string, val is quest ID to check
 local ALL_QUEST_FLAGGED_ITEMS = {}
@@ -63,16 +66,29 @@ end
 -- "Simple" version of  "C_Item.GetItemNameByID()" 
 --################################################################################--
 local function GetItemNameByID(itemID)
-  local alreadyName = C_Item.GetItemNameByID(itemID)
-  if alreadyName then return alreadyName end
+  -- already downloaded?
+  if ALL_PROFESSION_ITEMS[itemID][KEY_NAMEFOUND] then
+    return ALL_PROFESSION_ITEMS[itemID][KEY_NAME]
+  end
 
+  -- already cached?
+  local cachedName = C_Item.GetItemNameByID(itemID)
+  if cachedName then
+      ALL_PROFESSION_ITEMS[itemID][KEY_NAME] = cachedName
+      ALL_PROFESSION_ITEMS[itemID][KEY_NAMEFOUND] = true
+      return cachedName
+  end
+
+  -- go get it :/
   local item = Item:CreateFromItemID(itemID)
-
   item:ContinueOnItemLoad(function()
     local id = item:GetItemID()
     local name = item:GetItemName()
-    if name then ALL_PROFESSION_ITEMS[id]["name"] = name end
-    AutoKnowledgeMacro:Update()
+    apkPrint("OK", "ContinueOnItemLoad for " .. tostring(id) .. " " .. name)
+    if name then
+      ALL_PROFESSION_ITEMS[id][KEY_NAME] = name
+      ALL_PROFESSION_ITEMS[id][KEY_NAMEFOUND] = true
+    end
   end)
   return nil
 end
@@ -158,7 +174,7 @@ function AutoKnowledgeMacro:Update()
           if IsItemUsed(info.itemID) then
             apkPrint ("OK", "Already used " .. tostring(info.itemID) .. " this week");
           else
-          local profID = ALL_PROFESSION_ITEMS[info.itemID]["profession"]
+            local profID = ALL_PROFESSION_ITEMS[info.itemID][KEY_PROFESSION]
             if profID == myProfession1 or profID == myProfession2 or profID == AutoKnowledgeMacro.ENUM_PROFESSION_ALL then
               local displayText = GetItemNameByID(info.itemID) or tostring(info.itemID)
             apkPrint ("OK", "Setting Auto PK to " .. displayText)
@@ -178,7 +194,7 @@ function AutoKnowledgeMacro:Update()
   apkPrint("WARN", "Update end, nothing found")
   EditMacro(macroSlot, MACRO_NAME, "INV_Misc_QuestionMark", "/akm update")
   -- Give the addon some time for all the triggers to collect
-  C_Timer.After(0.25, function()
+  C_Timer.After(0.1, function()
     UpdateInProgress = false
   end)
 end
@@ -195,15 +211,8 @@ local function Reload()
   for professionEnum, expansionList in pairs(professionMap) do
     for _, itemList in pairs(expansionList) do
       for _, itemID in pairs(itemList) do
-        ALL_PROFESSION_ITEMS[itemID] = { profession = professionEnum, name = tostring(itemID) }
-        local item = Item:CreateFromItemID(itemID)
-
-        item:ContinueOnItemLoad(function()
-          local id = item:GetItemID()
-          local name = item:GetItemName()
-          if name then ALL_PROFESSION_ITEMS[id]["name"] = name end
-          AutoKnowledgeMacro:Update()
-        end)
+        ALL_PROFESSION_ITEMS[itemID] = { profession = professionEnum, name = tostring(itemID), nameFound = false }
+        GetItemNameByID(itemID)
       end
     end
   end
@@ -275,11 +284,14 @@ end
 
 function f:GET_ITEM_INFO_RECEIVED(event, itemID, success)
   if ALL_PROFESSION_ITEMS[itemID] then
-    apkPrint("WARN", event .. " itemID: " .. tostring(itemID) .. " success: " .. tostring(success))
     if (success) then
-      local name = C_Item.GetItemNameByID(itemID)
-      if name then ALL_PROFESSION_ITEMS[itemID]["name"] = name end
+      local name = GetItemNameByID(itemID)
+      apkPrint("WARN", event .. " itemID: " .. tostring(itemID) .. " " .. name .. " success: " .. tostring(success))
+      C_Timer.After(0.1, function()
       AutoKnowledgeMacro:Update()
+      end)
+    else
+      apkPrint("WARN", event .. " itemID: " .. tostring(itemID) .. " success: " .. tostring(success))
     end
   end
 end
