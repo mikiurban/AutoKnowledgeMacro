@@ -39,4 +39,8 @@ luac.out
 *.x86_64
 *.hex
 
+# WinMerge backup files
+*.bak
+
+# Visual Studio Code settings
 .vscode
