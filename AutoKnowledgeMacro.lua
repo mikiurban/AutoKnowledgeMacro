@@ -1,6 +1,5 @@
 local MACRO_NAME, AutoKnowledgeMacro = ...
 
--- local MACRO_NAME = "AutoKnowledgeMacro"
 if DLAPI then DLAPI.DebugLog(MACRO_NAME, "OK~"..MACRO_NAME.." loading...") end
 SLASH_AUTOKNOWLEDGEMACRO1, SLASH_AUTOKNOWLEDGEMACRO2 = '/autokm', '/akm'
 local BAGS = {
@@ -8,52 +7,57 @@ local BAGS = {
   Enum.BagIndex.Bag_1,
   Enum.BagIndex.Bag_2,
   Enum.BagIndex.Bag_3,
-  Enum.BagIndex.Bag_4
+  Enum.BagIndex.Bag_4,
+  Enum.BagIndex.ReagentBag
 }
 
--- this will collect the above arrays, keyed under their Enum.Profession value
-AutoKnowledgeMacro.professionMap = {}
 AutoKnowledgeMacro.ENUM_PROFESSION_ALL = 9999
-local professionMap = AutoKnowledgeMacro.professionMap
-
--- this holds all the item ids that can be flagged as complete by quests, and their quest ids
-AutoKnowledgeMacro.questFlaggedItems = {}
-local questFlaggedItems = AutoKnowledgeMacro.questFlaggedItems
+AutoKnowledgeMacro.SettingCategoryID = nil
 
 -- cache the Enum.Profession values I know
 local myProfession1 = nil
 local myProfession2 = nil
 
--- This will hold a list of every profession item.  Key is item ID, value is {"profession" : Enum.Profession, "name" : name, "nameFound" : true/false }
-local ALL_PROFESSION_ITEMS = {}
+-- This will hold a list of the names of every item.  Key is item ID, value is {"name" : name, "nameFound" : true/false }
+AutoKnowledgeMacro.NameCache = {}
 local KEY_NAME = "name"
 local KEY_NAMEFOUND = "nameFound"
+
+-- This will hold a list of every profession item.  Key is item ID, value is {"profession" : Enum.Profession }
+AutoKnowledgeMacro.ActiveProfessionItems = {}
 local KEY_PROFESSION = "profession"
+-- Master list of the above cache
+AutoKnowledgeMacro.professionMap = {}
 
 -- This will hold a list of every profession item that can be disabled by a quest, like treatises.  Key is item ID in string, val is quest ID to check
-local ALL_QUEST_FLAGGED_ITEMS = {}
+AutoKnowledgeMacro.ActiveQuestFlaggedItems = {}
+-- Master list of the above cache
+AutoKnowledgeMacro.treatises = {}
 
-local debug = false
+-- This will hold a list of every profession item that requires a minimum quantity to be useful, like Multicraft Matrix
+AutoKnowledgeMacro.MinimumQuantityItems = {}
+-- Master list of the above cache
+AutoKnowledgeMacro.finishingReagents = {}
 
-professionMap[Enum.Profession.Alchemy] = {}
-professionMap[Enum.Profession.Blacksmithing] = {}
-professionMap[Enum.Profession.Enchanting] = {}
-professionMap[Enum.Profession.Engineering] = {}
-professionMap[Enum.Profession.Herbalism] = {}
-professionMap[Enum.Profession.Inscription] = {}
-professionMap[Enum.Profession.Jewelcrafting] = {}
-professionMap[Enum.Profession.Leatherworking] = {}
-professionMap[Enum.Profession.Mining] = {}
-professionMap[Enum.Profession.Skinning] = {}
-professionMap[Enum.Profession.Tailoring] = {}
-professionMap[AutoKnowledgeMacro.ENUM_PROFESSION_ALL] = {}
+AutoKnowledgeMacro.professionMap[Enum.Profession.Alchemy] = {}
+AutoKnowledgeMacro.professionMap[Enum.Profession.Blacksmithing] = {}
+AutoKnowledgeMacro.professionMap[Enum.Profession.Enchanting] = {}
+AutoKnowledgeMacro.professionMap[Enum.Profession.Engineering] = {}
+AutoKnowledgeMacro.professionMap[Enum.Profession.Herbalism] = {}
+AutoKnowledgeMacro.professionMap[Enum.Profession.Inscription] = {}
+AutoKnowledgeMacro.professionMap[Enum.Profession.Jewelcrafting] = {}
+AutoKnowledgeMacro.professionMap[Enum.Profession.Leatherworking] = {}
+AutoKnowledgeMacro.professionMap[Enum.Profession.Mining] = {}
+AutoKnowledgeMacro.professionMap[Enum.Profession.Skinning] = {}
+AutoKnowledgeMacro.professionMap[Enum.Profession.Tailoring] = {}
+AutoKnowledgeMacro.professionMap[AutoKnowledgeMacro.ENUM_PROFESSION_ALL] = {}
 
 --################################################################################--
 -- Only prints the message if debug == true
 --################################################################################--
 local function apkPrint(level, ...)
   local status, res = pcall(format, ...)
-  if debug then
+  if AutoKnowledgeMacro_SavedVars and AutoKnowledgeMacro_SavedVars.debug then
     if DLAPI then
       DLAPI.DebugLog(MACRO_NAME, level .."~".. res)
     else
@@ -63,19 +67,33 @@ local function apkPrint(level, ...)
 end
 
 --################################################################################--
+-- Returns true if this is a finishing reagent
+--################################################################################--
+function AutoKnowledgeMacro:IsFinishingReagent(itemID)
+  if itemID then
+    for _, expansionList in pairs(AutoKnowledgeMacro.finishingReagents) do
+      for _, reagentPair in ipairs(expansionList) do
+        if itemID == reagentPair.itemID then return true end
+      end
+    end
+  end
+  return false
+end
+
+--################################################################################--
 -- "Simple" version of  "C_Item.GetItemNameByID()" 
 --################################################################################--
-local function GetItemNameByID(itemID)
+function AutoKnowledgeMacro:GetItemNameByID(itemID)
   -- already downloaded?
-  if ALL_PROFESSION_ITEMS[itemID][KEY_NAMEFOUND] then
-    return ALL_PROFESSION_ITEMS[itemID][KEY_NAME]
+  if AutoKnowledgeMacro.NameCache[itemID][KEY_NAMEFOUND] then
+    return AutoKnowledgeMacro.NameCache[itemID][KEY_NAME]
   end
 
   -- already cached?
   local cachedName = C_Item.GetItemNameByID(itemID)
   if cachedName then
-      ALL_PROFESSION_ITEMS[itemID][KEY_NAME] = cachedName
-      ALL_PROFESSION_ITEMS[itemID][KEY_NAMEFOUND] = true
+      AutoKnowledgeMacro.NameCache[itemID][KEY_NAME] = cachedName
+      AutoKnowledgeMacro.NameCache[itemID][KEY_NAMEFOUND] = true
       return cachedName
   end
 
@@ -86,8 +104,12 @@ local function GetItemNameByID(itemID)
     local name = item:GetItemName()
     apkPrint("OK", "ContinueOnItemLoad for " .. tostring(id) .. " " .. name)
     if name then
-      ALL_PROFESSION_ITEMS[id][KEY_NAME] = name
-      ALL_PROFESSION_ITEMS[id][KEY_NAMEFOUND] = true
+      AutoKnowledgeMacro.NameCache[id][KEY_NAME] = name
+      AutoKnowledgeMacro.NameCache[id][KEY_NAMEFOUND] = true
+
+      if AutoKnowledgeMacro:IsFinishingReagent(itemID) then
+        AutoKnowledgeMacro:InitializeSettings()
+      end
     end
   end)
   return nil
@@ -110,8 +132,8 @@ local f = CreateFrame("Frame")
 -- Returns true if this is a treatise and I already learned it this week
 --################################################################################--
 local function IsItemUsed(itemID)
-  if itemID and ALL_QUEST_FLAGGED_ITEMS[tostring(itemID)] then
-    return C_QuestLog.IsQuestFlaggedCompleted(ALL_QUEST_FLAGGED_ITEMS[tostring(itemID)])
+  if itemID and AutoKnowledgeMacro.ActiveQuestFlaggedItems[tostring(itemID)] then
+    return C_QuestLog.IsQuestFlaggedCompleted(AutoKnowledgeMacro.ActiveQuestFlaggedItems[tostring(itemID)])
   end
   return false
 end
@@ -170,15 +192,28 @@ function AutoKnowledgeMacro:Update()
     for _, tabID in ipairs(BAGS) do
       for slot=1, C_Container.GetContainerNumSlots(tabID) do
         local info = C_Container.GetContainerItemInfo(tabID, slot)
-        if info and ALL_PROFESSION_ITEMS[info.itemID] then
+        if info then
+          local key = tostring(info.itemID)
+          if AutoKnowledgeMacro.ActiveProfessionItems[info.itemID] then
           if IsItemUsed(info.itemID) then
-            apkPrint ("OK", "Already used " .. tostring(info.itemID) .. " this week");
+              apkPrint ("OK", "Already used " .. key .. " this week");
           else
-            local profID = ALL_PROFESSION_ITEMS[info.itemID][KEY_PROFESSION]
+              local profID = AutoKnowledgeMacro.ActiveProfessionItems[info.itemID][KEY_PROFESSION]
             if profID == myProfession1 or profID == myProfession2 or profID == AutoKnowledgeMacro.ENUM_PROFESSION_ALL then
-              local displayText = GetItemNameByID(info.itemID) or tostring(info.itemID)
+                local displayText = AutoKnowledgeMacro:GetItemNameByID(info.itemID) or key
             apkPrint ("OK", "Setting Auto PK to " .. displayText)
-            local body = "#showtooltip ".. displayText .. "\n/use item:" .. tostring(info.itemID)
+                local body = "#showtooltip ".. displayText .. "\n/use item:" .. key
+                EditMacro(macroSlot, MACRO_NAME, nil, body)
+                apkPrint("WARN", "Update end, found " .. displayText)
+                UpdateInProgress = false
+                return
+              end
+            end
+          elseif AutoKnowledgeMacro:IsFinishingReagent(info.itemID) then
+            local value = AutoKnowledgeMacro_SavedVars[key]
+            if value and C_Item.GetItemCount(info.itemID) >= AutoKnowledgeMacro.MinimumQuantityItems[key] then
+              local displayText = AutoKnowledgeMacro:GetItemNameByID(info.itemID) or key
+              local body = "#showtooltip ".. displayText .. "\n/use item:" .. key
             EditMacro(macroSlot, MACRO_NAME, nil, body)
             apkPrint("WARN", "Update end, found " .. displayText)
               UpdateInProgress = false
@@ -199,32 +234,65 @@ function AutoKnowledgeMacro:Update()
   end)
 end
 
---################################################################################--
--- (Almost) everything the addon needs to do, excludes static data
---################################################################################--
-local function Reload()
-  -- make sure we have a macro to update
-  GetMacroSlot()
-
-  ALL_PROFESSION_ITEMS = {}
+function AutoKnowledgeMacro:ReloadAllProfessionItems()
+  AutoKnowledgeMacro.ActiveProfessionItems = {}
   -- Load all item names in now, save us the trouble later
-  for professionEnum, expansionList in pairs(professionMap) do
+  for professionEnum, expansionList in pairs(AutoKnowledgeMacro.professionMap) do
     for _, itemList in pairs(expansionList) do
       for _, itemID in pairs(itemList) do
-        ALL_PROFESSION_ITEMS[itemID] = { profession = professionEnum, name = tostring(itemID), nameFound = false }
-        GetItemNameByID(itemID)
+        AutoKnowledgeMacro.ActiveProfessionItems[itemID] = { profession = professionEnum }
+        if not AutoKnowledgeMacro.NameCache[itemID] then
+          AutoKnowledgeMacro.NameCache[itemID] = { name = tostring(itemID), nameFound = false }
+          AutoKnowledgeMacro:GetItemNameByID(itemID)
+        end
+      end
       end
     end
   end
 
-  ALL_QUEST_FLAGGED_ITEMS = {}
-  for professionEnum, expansionList in pairs(questFlaggedItems) do
+function AutoKnowledgeMacro:ReloadAllQuestFlaggedItems()
+  AutoKnowledgeMacro.ActiveQuestFlaggedItems = {}
+  if AutoKnowledgeMacro_SavedVars.treatises then
+    for professionEnum, expansionList in pairs(AutoKnowledgeMacro.treatises) do
     for _, itemQuestPair in ipairs(expansionList) do
       local key = tostring(itemQuestPair.itemID)
       apkPrint("OK", "item ID: " .. key .. ", questID: " .. tostring(itemQuestPair.questID))
-      ALL_QUEST_FLAGGED_ITEMS[key] = itemQuestPair.questID
+        AutoKnowledgeMacro.ActiveQuestFlaggedItems[key] = itemQuestPair.questID
+        if not AutoKnowledgeMacro.NameCache[itemQuestPair.itemID] then
+          AutoKnowledgeMacro.NameCache[itemQuestPair.itemID] = { name = key, nameFound = false }
+          AutoKnowledgeMacro:GetItemNameByID(itemQuestPair.itemID)
+        end
+      end
     end
   end
+end
+
+function AutoKnowledgeMacro:ReloadAllMinimumQuantityItems()
+  AutoKnowledgeMacro.MinimumQuantityItems = {}
+  for professionEnum, expansionList in pairs(AutoKnowledgeMacro.finishingReagents) do
+    for _, reagentPair in ipairs(expansionList) do
+      local key = tostring(reagentPair.itemID)
+      AutoKnowledgeMacro.MinimumQuantityItems[key] = reagentPair.qty
+
+      -- still need to know the names for the Settings 
+      if not AutoKnowledgeMacro.NameCache[reagentPair.itemID] then
+        AutoKnowledgeMacro.NameCache[reagentPair.itemID] = { name = key, nameFound = false }
+        AutoKnowledgeMacro:GetItemNameByID(reagentPair.itemID)
+      end
+    end
+    end
+  end
+
+--################################################################################--
+-- (Almost) everything the addon needs to do, excludes static data
+--################################################################################--
+local function ReloadAll()
+  -- make sure we have a macro to update
+  GetMacroSlot()
+
+  AutoKnowledgeMacro:ReloadAllProfessionItems()
+  AutoKnowledgeMacro:ReloadAllQuestFlaggedItems()
+  AutoKnowledgeMacro:ReloadAllMinimumQuantityItems()
 
   UpdateProfessions()
   AutoKnowledgeMacro:Update()
@@ -232,7 +300,7 @@ local function Reload()
   -- Weekly resets for Treatises
   local seconds = C_DateAndTime.GetSecondsUntilWeeklyReset()
   C_Timer.After(seconds, function()
-    Reload()
+    ReloadAll()
   end)
 end
 
@@ -247,7 +315,13 @@ function f:ADDON_LOADED(event, addOnName)
   if addOnName ~= MACRO_NAME then return end
   apkPrint("WARN", event .. " " .. addOnName)
 
-  Reload()
+  AutoKnowledgeMacro:LoadMidnightData()
+  AutoKnowledgeMacro:LoadTheWarWithinData()
+  AutoKnowledgeMacro:CheckOrCreateSettings()
+
+  ReloadAll()
+
+  AutoKnowledgeMacro:InitializeSettings()
 end
 
 function f:BAG_CONTAINER_UPDATE(event, ...)
@@ -283,15 +357,15 @@ function f:SKILL_LINE_SPECS_RANKS_CHANGED(event, ...)
 end
 
 function f:GET_ITEM_INFO_RECEIVED(event, itemID, success)
-  if ALL_PROFESSION_ITEMS[itemID] then
-    if (success) then
-      local name = GetItemNameByID(itemID)
+  if success and AutoKnowledgeMacro.NameCache[itemID] and not AutoKnowledgeMacro.NameCache[itemID][KEY_NAMEFOUND] then
+    local name = AutoKnowledgeMacro:GetItemNameByID(itemID)
       apkPrint("WARN", event .. " itemID: " .. tostring(itemID) .. " " .. name .. " success: " .. tostring(success))
       C_Timer.After(0.1, function()
       AutoKnowledgeMacro:Update()
       end)
-    else
-      apkPrint("WARN", event .. " itemID: " .. tostring(itemID) .. " success: " .. tostring(success))
+
+    if AutoKnowledgeMacro:IsFinishingReagent(itemID) then
+      AutoKnowledgeMacro:InitializeSettings()
     end
   end
 end
@@ -311,6 +385,16 @@ f:RegisterEvent("GET_ITEM_INFO_RECEIVED") -- Called C_Item.GetItemName(), name i
 
 f:SetScript("OnEvent", f.OnEvent)
 
+function AutoKnowledgeMacro:ToggleDebug()
+  AutoKnowledgeMacro:SetDebug(not AutoKnowledgeMacro_SavedVars.debug)
+end
+
+function AutoKnowledgeMacro:SetDebug(newValue)
+  AutoKnowledgeMacro_SavedVars.debug = newValue
+  apkPrint("OK", "AKM: Debug ".. (AutoKnowledgeMacro_SavedVars.debug and "on" or "off"))
+  print("AutoKnowledgeMacro: Debug ".. (AutoKnowledgeMacro_SavedVars.debug and "on" or "off"))
+end
+
 --################################################################################--
 -- Slash commands
 --################################################################################--
@@ -321,15 +405,13 @@ SlashCmdList["AUTOKNOWLEDGEMACRO"] = function(msg, editBox)
     apkPrint("OK", "AKM: Complete")
     print("AutoKnowledgeMacro: Update complete")
   elseif msg == "debug" then
-    debug = not debug
-    apkPrint("OK", "AKM: Debug ".. (debug and "on" or "off"))
-    print("AutoKnowledgeMacro: Debug ".. (debug and "on" or "off"))
+    AutoKnowledgeMacro:ToggleDebug()
   elseif msg == "pickup" then
     apkPrint("OK", "AKM: Picking up macro")
     PickupMacro(MACRO_NAME)
   elseif msg == "reload" then
     apkPrint("OK", "AKM: Updating professions")
-    Reload()
+    ReloadAll()
     print("AutoKnowledgeMacro: Reload complete")
   elseif msg == "help" or msg == nil or msg == "" then
     print("AutoKnowledgeMacro commands: /autokm or /akm")
