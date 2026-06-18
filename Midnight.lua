@@ -297,16 +297,6 @@ local TREATISES_AND_QUESTIDS = {
   { itemID = 245756, questID = 95137 }, -- Thalassian Treatise on Tailoring
 }
 
-local FINISHING_REAGENTS = {
-  { itemID = 246447, qty = 5 }, -- Apprentice's Scribbles (+5 Skill)
-  { itemID = 246448, qty = 5 }, -- Artisan's Ledger (+10 Skill)
-  { itemID = 246449, qty = 5 }, -- Mentor's Helpful Handiwork (+20 Skill)
-  { itemID = 247719, qty = 5 }, -- Multicraft Matrix (+90 Multicraft)
-  { itemID = 247725, qty = 5 }, -- Resourceful Rebar (+20 Resourcefulness)
-  { itemID = 260630, qty = 5 }, -- Ingenious Identity (+25 Ingenuity)
-}
-
-function AutoKnowledgeMacro:LoadMidnightData()
 AutoKnowledgeMacro.professionMap[Enum.Profession.Alchemy][Enum.ExpansionLevel.Midnight] = ALCHEMY_PK_ITEMS
 AutoKnowledgeMacro.professionMap[Enum.Profession.Blacksmithing][Enum.ExpansionLevel.Midnight] = BLACKSMITH_PK_ITEMS
 AutoKnowledgeMacro.professionMap[Enum.Profession.Enchanting][Enum.ExpansionLevel.Midnight] = ENCHANTING_PK_ITEMS
@@ -319,6 +309,4 @@ AutoKnowledgeMacro.professionMap[Enum.Profession.Mining][Enum.ExpansionLevel.Mid
 AutoKnowledgeMacro.professionMap[Enum.Profession.Skinning][Enum.ExpansionLevel.Midnight] = SKINNING_PK_ITEMS
 AutoKnowledgeMacro.professionMap[Enum.Profession.Tailoring][Enum.ExpansionLevel.Midnight] = TAILORING_PK_ITEMS
 AutoKnowledgeMacro.professionMap[AutoKnowledgeMacro.ENUM_PROFESSION_ALL][Enum.ExpansionLevel.Midnight] = ALL_PROFESSION_ITEMS
-  AutoKnowledgeMacro.treatises[Enum.ExpansionLevel.Midnight] = TREATISES_AND_QUESTIDS
-  AutoKnowledgeMacro.finishingReagents[Enum.ExpansionLevel.Midnight] = FINISHING_REAGENTS
-end
+AutoKnowledgeMacro.questFlaggedItems[Enum.ExpansionLevel.Midnight] = TREATISES_AND_QUESTIDS

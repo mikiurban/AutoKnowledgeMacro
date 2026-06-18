@@ -1,4 +1,4 @@
-This addon will create a macro called "AutoKnowledgeMacro," and as you loot and use items that increase your Profession Knowledge, it will automatically update the macro to use that item. It will also allow you to combine finishing reagents
+This addon will create a macro called "AutoKnowledgeMacro," and as you loot and use items that increase your Profession Knowledge, it will automatically update the macro to use that item.
 
 Slash commands: /autokm or /akm work.  Options are:
 

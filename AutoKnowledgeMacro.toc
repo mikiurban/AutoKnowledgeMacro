@@ -1,22 +1,9 @@
 ## Interface: 120005
-## Version: 1.3.0
+## Version: 1.2.3
 ## Title: AutoKnowledgeMacro
 ## Notes: Creates and updates a macro for using Profession Knowledge items as you collect them
 ## Author: Miki Urban
-## SavedVariablesPerCharacter: AutoKnowledgeMacro_SavedVars
-## Category: Professions
-## Category-deDE: Berufe
-## Category-esES: Profesiones
-## Category-esMX: Profesiones
-## Category-frFR: M�tiers
-## Category-itIT: Professioni
-## Category-koKR: ?? ??
-## Category-ptBR: Profiss�es
-## Category-ruRU: ?????????
-## Category-zhCN: ??
-## Category-zhTW: ????
 
+AutoKnowledgeMacro.lua
 Midnight.lua
 TheWarWithin.lua
-Settings.lua
-AutoKnowledgeMacro.lua

@@ -241,11 +241,6 @@ local TREATISES_AND_QUESTIDS = {
   { itemID = 222649, questID = 83734 }, -- Algari Treatise on Skinning
 }
 
--- TODO: Not sure if these exist in TWW, I wasn't really paying attn.  
-local FINISHING_REAGENTS = {
-}
-
-function AutoKnowledgeMacro:LoadTheWarWithinData()
 AutoKnowledgeMacro.professionMap[Enum.Profession.Alchemy][Enum.ExpansionLevel.WarWithin] = ALCHEMY_PK_ITEMS
 AutoKnowledgeMacro.professionMap[Enum.Profession.Blacksmithing][Enum.ExpansionLevel.WarWithin] = BLACKSMITH_PK_ITEMS
 AutoKnowledgeMacro.professionMap[Enum.Profession.Enchanting][Enum.ExpansionLevel.WarWithin] = ENCHANTING_PK_ITEMS
@@ -258,6 +253,4 @@ AutoKnowledgeMacro.professionMap[Enum.Profession.Mining][Enum.ExpansionLevel.War
 AutoKnowledgeMacro.professionMap[Enum.Profession.Skinning][Enum.ExpansionLevel.WarWithin] = SKINNING_PK_ITEMS
 AutoKnowledgeMacro.professionMap[Enum.Profession.Tailoring][Enum.ExpansionLevel.WarWithin] = TAILORING_PK_ITEMS
 AutoKnowledgeMacro.professionMap[AutoKnowledgeMacro.ENUM_PROFESSION_ALL][Enum.ExpansionLevel.WarWithin] = ALL_PROFESSION_ITEMS
-  AutoKnowledgeMacro.treatises[Enum.ExpansionLevel.WarWithin] = TREATISES_AND_QUESTIDS
-  AutoKnowledgeMacro.finishingReagents[Enum.ExpansionLevel.WarWithin] = FINISHING_REAGENTS
-end
+AutoKnowledgeMacro.questFlaggedItems[Enum.ExpansionLevel.WarWithin] = TREATISES_AND_QUESTIDS
