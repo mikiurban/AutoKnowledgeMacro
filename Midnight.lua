@@ -23,6 +23,8 @@ local ALCHEMY_PK_ITEMS = {
   262645, -- Beyond the Event Horizon: Alchemy
   -- Weekly quest  
   263454, -- Thalassian Alchemist's Notebook
+  -- Master Surplus Reagents
+  260534,
 }
 local BLACKSMITH_PK_ITEMS = {
   -- MID Treasures
@@ -48,6 +50,8 @@ local BLACKSMITH_PK_ITEMS = {
   262644, -- Beyond the Event Horizon: Blacksmithing
   -- Weekly Quest
   263455, -- Thalassian Blacksmith's Journal
+  -- Master Surplus Reagents
+  260536,
 }
 local ENCHANTING_PK_ITEMS = {
   -- MID Treasures
@@ -79,6 +83,8 @@ local ENCHANTING_PK_ITEMS = {
   267653, -- Glimmering Powder
   267654, -- Swirling Arcane Essence
   267655, -- Brimming Mana Shard
+  -- Master Surplus Reagents
+  260537,
 }
 local ENGINEERING_PK_ITEMS = {
   -- MID Treasures
@@ -104,6 +110,8 @@ local ENGINEERING_PK_ITEMS = {
   262646, -- Beyond the Event Horizon: Engineering
   -- Weekly Quest
   263456, -- Thalassian Engineer's Notepad 
+  -- Master Surplus Reagents
+  260538,
 }
 local HERBALISM_PK_ITEMS = {
   -- Weekly Profession Drops
@@ -129,6 +137,8 @@ local HERBALISM_PK_ITEMS = {
   258410, -- Traditions of the Haranir: Herbalism
   -- Weekly quest
   263462, -- Thalassian Herbalist's Notes
+  -- Master Surplus Reagents
+  260539,
 }
 local INSCRIPTION_PK_ITEMS = {
   -- MID Treasures
@@ -154,6 +164,8 @@ local INSCRIPTION_PK_ITEMS = {
   259197, -- Loa-Blessed Rune
   -- Weekly quest
   263457, -- Thalassian Scribe's Journal
+  -- Master Surplus Reagents
+  260540,
 }
 local JEWELCRAFTING_PK_ITEMS = {
   -- MID Treasures
@@ -179,6 +191,8 @@ local JEWELCRAFTING_PK_ITEMS = {
   259199, -- Harandar Stone Sample
   -- Weekly Quest
   263458, -- Thalassian Jewelcrafter's Notebook
+  -- Master Surplus Reagents
+  260541,
 }
 local LEATHERWORKING_PK_ITEMS = {
   -- MID Treasures  
@@ -204,6 +218,8 @@ local LEATHERWORKING_PK_ITEMS = {
   259201, -- Thalassian Mana Oil
   -- Weekly quest
   263459, -- Thalassian Leatherworker's Journal
+  -- Master Surplus Reagents
+  260542,
 }
 local MINING_PK_ITEMS = {
   -- Weekly Profession Drops
@@ -229,6 +245,8 @@ local MINING_PK_ITEMS = {
   255836, -- Sr. Professor Instructaur's Top Secret Guide to Midnight Mining
   -- Weekly Quest
   263463, -- Thalassian Miner's Notes
+  -- Master Surplus Reagents
+  260543,
 }
 local SKINNING_PK_ITEMS = {
   -- Profession drops
@@ -251,6 +269,8 @@ local SKINNING_PK_ITEMS = {
   250923, -- Whisper of the Loa: Skinning
   -- Weekly Quest
   263461, -- Thalassian Skinner's Notes
+  -- Master Surplus Reagents
+  260544,
 }
 local TAILORING_PK_ITEMS = {
   -- MID Treasures
@@ -276,6 +296,8 @@ local TAILORING_PK_ITEMS = {
   259203, -- Finely Woven Lynx Collar
   -- Weekly quest
   263460, -- Thalassian Tailor's Notebook
+  -- Master Surplus Reagents
+  260545,
 }
 local ALL_PROFESSION_ITEMS = {
   227713, -- Artisan's Consortium Payout
@@ -298,27 +320,27 @@ local TREATISES_AND_QUESTIDS = {
 }
 
 local FINISHING_REAGENTS = {
-  { itemID = 246447, qty = 5 }, -- Apprentice's Scribbles (+5 Skill)
-  { itemID = 246448, qty = 5 }, -- Artisan's Ledger (+10 Skill)
-  { itemID = 246449, qty = 5 }, -- Mentor's Helpful Handiwork (+20 Skill)
-  { itemID = 247719, qty = 5 }, -- Multicraft Matrix (+90 Multicraft)
-  { itemID = 247725, qty = 5 }, -- Resourceful Rebar (+20 Resourcefulness)
-  { itemID = 260630, qty = 5 }, -- Ingenious Identity (+25 Ingenuity)
+  { itemID = 246447, qty = 5, note = "+5 Skill, makes Artisan's Ledger" }, -- Apprentice's Scribbles (+5 Skill)
+  { itemID = 246448, qty = 5, note = "+10 Skill, makes Mentor's Helpful Handiwork" }, -- Artisan's Ledger (+10 Skill)
+  { itemID = 246449, qty = 5, note = "+20 Skill, makes Artisan's Consortium Gold Star" }, -- Mentor's Helpful Handiwork (+20 Skill)
+  { itemID = 247719, qty = 5, note = "+90 Multicraft, make Multicraft Manifold" }, -- Multicraft Matrix (+90 Multicraft)
+  { itemID = 247725, qty = 5, note = "+20 Resourcefulness, makes Resourceful Routing" }, -- Resourceful Rebar (+20 Resourcefulness)
+  { itemID = 260630, qty = 5, note = "+5 Ingenuity, makes Ingenious Identity" }, -- Ingenious Identifier (+25 Ingenuity)
 }
 
 function AutoKnowledgeMacro:LoadMidnightData()
-AutoKnowledgeMacro.professionMap[Enum.Profession.Alchemy][Enum.ExpansionLevel.Midnight] = ALCHEMY_PK_ITEMS
-AutoKnowledgeMacro.professionMap[Enum.Profession.Blacksmithing][Enum.ExpansionLevel.Midnight] = BLACKSMITH_PK_ITEMS
-AutoKnowledgeMacro.professionMap[Enum.Profession.Enchanting][Enum.ExpansionLevel.Midnight] = ENCHANTING_PK_ITEMS
-AutoKnowledgeMacro.professionMap[Enum.Profession.Engineering][Enum.ExpansionLevel.Midnight] = ENGINEERING_PK_ITEMS
-AutoKnowledgeMacro.professionMap[Enum.Profession.Herbalism][Enum.ExpansionLevel.Midnight] = HERBALISM_PK_ITEMS
-AutoKnowledgeMacro.professionMap[Enum.Profession.Inscription][Enum.ExpansionLevel.Midnight] = INSCRIPTION_PK_ITEMS
-AutoKnowledgeMacro.professionMap[Enum.Profession.Jewelcrafting][Enum.ExpansionLevel.Midnight] = JEWELCRAFTING_PK_ITEMS
-AutoKnowledgeMacro.professionMap[Enum.Profession.Leatherworking][Enum.ExpansionLevel.Midnight] = LEATHERWORKING_PK_ITEMS
-AutoKnowledgeMacro.professionMap[Enum.Profession.Mining][Enum.ExpansionLevel.Midnight] = MINING_PK_ITEMS
-AutoKnowledgeMacro.professionMap[Enum.Profession.Skinning][Enum.ExpansionLevel.Midnight] = SKINNING_PK_ITEMS
-AutoKnowledgeMacro.professionMap[Enum.Profession.Tailoring][Enum.ExpansionLevel.Midnight] = TAILORING_PK_ITEMS
-AutoKnowledgeMacro.professionMap[AutoKnowledgeMacro.ENUM_PROFESSION_ALL][Enum.ExpansionLevel.Midnight] = ALL_PROFESSION_ITEMS
+  AutoKnowledgeMacro.professionMap[Enum.Profession.Alchemy][Enum.ExpansionLevel.Midnight] = ALCHEMY_PK_ITEMS
+  AutoKnowledgeMacro.professionMap[Enum.Profession.Blacksmithing][Enum.ExpansionLevel.Midnight] = BLACKSMITH_PK_ITEMS
+  AutoKnowledgeMacro.professionMap[Enum.Profession.Enchanting][Enum.ExpansionLevel.Midnight] = ENCHANTING_PK_ITEMS
+  AutoKnowledgeMacro.professionMap[Enum.Profession.Engineering][Enum.ExpansionLevel.Midnight] = ENGINEERING_PK_ITEMS
+  AutoKnowledgeMacro.professionMap[Enum.Profession.Herbalism][Enum.ExpansionLevel.Midnight] = HERBALISM_PK_ITEMS
+  AutoKnowledgeMacro.professionMap[Enum.Profession.Inscription][Enum.ExpansionLevel.Midnight] = INSCRIPTION_PK_ITEMS
+  AutoKnowledgeMacro.professionMap[Enum.Profession.Jewelcrafting][Enum.ExpansionLevel.Midnight] = JEWELCRAFTING_PK_ITEMS
+  AutoKnowledgeMacro.professionMap[Enum.Profession.Leatherworking][Enum.ExpansionLevel.Midnight] = LEATHERWORKING_PK_ITEMS
+  AutoKnowledgeMacro.professionMap[Enum.Profession.Mining][Enum.ExpansionLevel.Midnight] = MINING_PK_ITEMS
+  AutoKnowledgeMacro.professionMap[Enum.Profession.Skinning][Enum.ExpansionLevel.Midnight] = SKINNING_PK_ITEMS
+  AutoKnowledgeMacro.professionMap[Enum.Profession.Tailoring][Enum.ExpansionLevel.Midnight] = TAILORING_PK_ITEMS
+  AutoKnowledgeMacro.professionMap[AutoKnowledgeMacro.ENUM_PROFESSION_ALL][Enum.ExpansionLevel.Midnight] = ALL_PROFESSION_ITEMS
   AutoKnowledgeMacro.treatises[Enum.ExpansionLevel.Midnight] = TREATISES_AND_QUESTIDS
   AutoKnowledgeMacro.finishingReagents[Enum.ExpansionLevel.Midnight] = FINISHING_REAGENTS
 end
