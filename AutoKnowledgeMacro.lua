@@ -11,8 +11,12 @@ local BAGS = {
   Enum.BagIndex.ReagentBag
 }
 
+-- this will collect the above arrays, keyed under their Enum.Profession value
+AutoKnowledgeMacro.professionMap = {}
 AutoKnowledgeMacro.ENUM_PROFESSION_ALL = 9999
-AutoKnowledgeMacro.SettingCategoryID = nil
+
+-- this holds all the item ids that can be flagged as complete by quests, and their quest ids
+AutoKnowledgeMacro.questFlaggedItems = {}
 
 -- cache the Enum.Profession values I know
 local myProfession1 = nil
@@ -20,17 +24,15 @@ local myProfession2 = nil
 
 -- This will hold a list of the names of every item.  Key is item ID, value is {"name" : name, "nameFound" : true/false }
 AutoKnowledgeMacro.NameCache = {}
-local KEY_NAME = "name"
-local KEY_NAMEFOUND = "nameFound"
+AutoKnowledgeMacro.KEY_NAME = "name"
+AutoKnowledgeMacro.KEY_NAMEFOUND = "nameFound"
 
 -- This will hold a list of every profession item.  Key is item ID, value is {"profession" : Enum.Profession }
 AutoKnowledgeMacro.ActiveProfessionItems = {}
 local KEY_PROFESSION = "profession"
--- Master list of the above cache
-AutoKnowledgeMacro.professionMap = {}
 
 -- This will hold a list of every profession item that can be disabled by a quest, like treatises.  Key is item ID in string, val is quest ID to check
-AutoKnowledgeMacro.ActiveQuestFlaggedItems = {}
+AutoKnowledgeMacro.QuestFlaggedItemMap = {}
 -- Master list of the above cache
 AutoKnowledgeMacro.treatises = {}
 
@@ -80,21 +82,60 @@ function AutoKnowledgeMacro:IsFinishingReagent(itemID)
   return false
 end
 
+local function IsTreatise(itemID)
+  for _, expansionList in pairs(AutoKnowledgeMacro.treatises) do
+    for _, itemQuestPair in ipairs(expansionList) do
+      if itemID == itemQuestPair.itemID then return true end
+    end
+  end
+  return false
+end
+
+--################################################################################--
+-- Quick test if name is cached
+--################################################################################--
+function AutoKnowledgeMacro:NameFound(itemID)
+  -- already downloaded?
+  if not AutoKnowledgeMacro.NameCache[itemID] then return false end
+  return AutoKnowledgeMacro.NameCache[itemID][AutoKnowledgeMacro.KEY_NAMEFOUND]
+end
+
+--################################################################################--
+-- Make the slot to hold the name
+--################################################################################--
+local function VerifyNameSlotExists(itemID)
+  if not AutoKnowledgeMacro.NameCache[itemID] then
+    AutoKnowledgeMacro.NameCache[itemID] = {}
+    AutoKnowledgeMacro.NameCache[itemID][AutoKnowledgeMacro.KEY_NAME] = tostring(itemID)
+    AutoKnowledgeMacro.NameCache[itemID][AutoKnowledgeMacro.KEY_NAMEFOUND] = false
+  end
+end
+
+--################################################################################--
+-- Save the item name into our cache
+--################################################################################--
+local function CacheItemName(itemID, name)
+  VerifyNameSlotExists(itemID)
+  AutoKnowledgeMacro.NameCache[itemID][AutoKnowledgeMacro.KEY_NAME] = name
+  AutoKnowledgeMacro.NameCache[itemID][AutoKnowledgeMacro.KEY_NAMEFOUND] = true
+end
+
 --################################################################################--
 -- "Simple" version of  "C_Item.GetItemNameByID()" 
 --################################################################################--
 function AutoKnowledgeMacro:GetItemNameByID(itemID)
+  VerifyNameSlotExists(itemID)
+
   -- already downloaded?
-  if AutoKnowledgeMacro.NameCache[itemID][KEY_NAMEFOUND] then
-    return AutoKnowledgeMacro.NameCache[itemID][KEY_NAME]
+  if AutoKnowledgeMacro:NameFound(itemID) then
+    return AutoKnowledgeMacro.NameCache[itemID][AutoKnowledgeMacro.KEY_NAME]
   end
 
   -- already cached?
   local cachedName = C_Item.GetItemNameByID(itemID)
   if cachedName then
-      AutoKnowledgeMacro.NameCache[itemID][KEY_NAME] = cachedName
-      AutoKnowledgeMacro.NameCache[itemID][KEY_NAMEFOUND] = true
-      return cachedName
+    CacheItemName(itemID, cachedName)
+    return cachedName
   end
 
   -- go get it :/
@@ -104,8 +145,7 @@ function AutoKnowledgeMacro:GetItemNameByID(itemID)
     local name = item:GetItemName()
     apkPrint("OK", "ContinueOnItemLoad for " .. tostring(id) .. " " .. name)
     if name then
-      AutoKnowledgeMacro.NameCache[id][KEY_NAME] = name
-      AutoKnowledgeMacro.NameCache[id][KEY_NAMEFOUND] = true
+      CacheItemName(id, name)
 
       if AutoKnowledgeMacro:IsFinishingReagent(itemID) then
         AutoKnowledgeMacro:InitializeSettings()
@@ -114,6 +154,7 @@ function AutoKnowledgeMacro:GetItemNameByID(itemID)
   end)
   return nil
 end
+
 
 --################################################################################--
 -- return the macro index, create one if we need
@@ -130,10 +171,21 @@ local f = CreateFrame("Frame")
 
 --################################################################################--
 -- Returns true if this is a treatise and I already learned it this week
+-- also returns true if we want to skip this item and move to the next slot in our 
+-- inventory
 --################################################################################--
-local function IsItemUsed(itemID)
-  if itemID and AutoKnowledgeMacro.ActiveQuestFlaggedItems[tostring(itemID)] then
-    return C_QuestLog.IsQuestFlaggedCompleted(AutoKnowledgeMacro.ActiveQuestFlaggedItems[tostring(itemID)])
+local function SkipThisItem(itemID)
+  -- if it doesn't exist, we don't want to use it again
+  if not itemID then return true end
+
+  -- is it a treatise?
+  if IsTreatise(itemID) then
+    -- if treatises are disabled then this is "used" and move to the next item
+    if not AutoKnowledgeMacro_SavedVars.treatises then return true end
+
+    local questID = AutoKnowledgeMacro.QuestFlaggedItemMap[itemID]
+    apkPrint("OK", "Checking if quest "..tostring(questID).." for item "..tostring(itemID).." has been used")
+    return C_QuestLog.IsQuestFlaggedCompleted(questID)
   end
   return false
 end
@@ -193,16 +245,16 @@ function AutoKnowledgeMacro:Update()
       for slot=1, C_Container.GetContainerNumSlots(tabID) do
         local info = C_Container.GetContainerItemInfo(tabID, slot)
         if info then
-          local key = tostring(info.itemID)
+          local id = tostring(info.itemID)
           if AutoKnowledgeMacro.ActiveProfessionItems[info.itemID] then
-          if IsItemUsed(info.itemID) then
-              apkPrint ("OK", "Already used " .. key .. " this week");
-          else
+            if SkipThisItem(info.itemID) then
+              apkPrint ("OK", "Skipping " .. id);
+            else
               local profID = AutoKnowledgeMacro.ActiveProfessionItems[info.itemID][KEY_PROFESSION]
-            if profID == myProfession1 or profID == myProfession2 or profID == AutoKnowledgeMacro.ENUM_PROFESSION_ALL then
-                local displayText = AutoKnowledgeMacro:GetItemNameByID(info.itemID) or key
-            apkPrint ("OK", "Setting Auto PK to " .. displayText)
-                local body = "#showtooltip ".. displayText .. "\n/use item:" .. key
+              if profID == myProfession1 or profID == myProfession2 or profID == AutoKnowledgeMacro.ENUM_PROFESSION_ALL then
+                local displayText = AutoKnowledgeMacro:GetItemNameByID(info.itemID) or id
+                apkPrint ("OK", "Setting Auto PK to " .. displayText)
+                local body = "#showtooltip ".. displayText .. "\n/use item:" .. id
                 EditMacro(macroSlot, MACRO_NAME, nil, body)
                 apkPrint("WARN", "Update end, found " .. displayText)
                 UpdateInProgress = false
@@ -210,19 +262,22 @@ function AutoKnowledgeMacro:Update()
               end
             end
           elseif AutoKnowledgeMacro:IsFinishingReagent(info.itemID) then
-            local value = AutoKnowledgeMacro_SavedVars[key]
-            if value and C_Item.GetItemCount(info.itemID) >= AutoKnowledgeMacro.MinimumQuantityItems[key] then
-              local displayText = AutoKnowledgeMacro:GetItemNameByID(info.itemID) or key
-              local body = "#showtooltip ".. displayText .. "\n/use item:" .. key
-            EditMacro(macroSlot, MACRO_NAME, nil, body)
-            apkPrint("WARN", "Update end, found " .. displayText)
+            local enabled = AutoKnowledgeMacro_SavedVars[id]
+            local haveQty = C_Item.GetItemCount(info.itemID)
+            local needQty = AutoKnowledgeMacro.MinimumQuantityItems[info.itemID]
+            apkPrint ("OK", "UPDATE: "..id.." is a finishing reagent (enabled = "..tostring(enabled)..", have "..tostring(haveQty)..", need "..tostring(needQty)..")")
+            if enabled and haveQty >= needQty then
+              local displayText = AutoKnowledgeMacro:GetItemNameByID(info.itemID) or id
+              local body = "#showtooltip ".. displayText .. "\n/use item:" .. id
+              EditMacro(macroSlot, MACRO_NAME, nil, body)
+              apkPrint("WARN", "Update end, found " .. displayText)
               UpdateInProgress = false
-            return
+              return
+            end
           end
         end
       end
     end
-  end
   end
 
   -- no items found or no professions found, leave it alone
@@ -241,27 +296,22 @@ function AutoKnowledgeMacro:ReloadAllProfessionItems()
     for _, itemList in pairs(expansionList) do
       for _, itemID in pairs(itemList) do
         AutoKnowledgeMacro.ActiveProfessionItems[itemID] = { profession = professionEnum }
-        if not AutoKnowledgeMacro.NameCache[itemID] then
+        if not AutoKnowledgeMacro:NameFound(itemID) then
           AutoKnowledgeMacro.NameCache[itemID] = { name = tostring(itemID), nameFound = false }
           AutoKnowledgeMacro:GetItemNameByID(itemID)
         end
       end
-      end
     end
   end
+end
 
 function AutoKnowledgeMacro:ReloadAllQuestFlaggedItems()
-  AutoKnowledgeMacro.ActiveQuestFlaggedItems = {}
-  if AutoKnowledgeMacro_SavedVars.treatises then
-    for professionEnum, expansionList in pairs(AutoKnowledgeMacro.treatises) do
+  AutoKnowledgeMacro.QuestFlaggedItemMap = {}
+  for _, expansionList in pairs(AutoKnowledgeMacro.treatises) do
     for _, itemQuestPair in ipairs(expansionList) do
-      local key = tostring(itemQuestPair.itemID)
-      apkPrint("OK", "item ID: " .. key .. ", questID: " .. tostring(itemQuestPair.questID))
-        AutoKnowledgeMacro.ActiveQuestFlaggedItems[key] = itemQuestPair.questID
-        if not AutoKnowledgeMacro.NameCache[itemQuestPair.itemID] then
-          AutoKnowledgeMacro.NameCache[itemQuestPair.itemID] = { name = key, nameFound = false }
-          AutoKnowledgeMacro:GetItemNameByID(itemQuestPair.itemID)
-        end
+      AutoKnowledgeMacro.QuestFlaggedItemMap[itemQuestPair.itemID] = itemQuestPair.questID
+      if not AutoKnowledgeMacro:NameFound(itemQuestPair.itemID) then
+        AutoKnowledgeMacro:GetItemNameByID(itemQuestPair.itemID)
       end
     end
   end
@@ -269,19 +319,15 @@ end
 
 function AutoKnowledgeMacro:ReloadAllMinimumQuantityItems()
   AutoKnowledgeMacro.MinimumQuantityItems = {}
-  for professionEnum, expansionList in pairs(AutoKnowledgeMacro.finishingReagents) do
+  for _, expansionList in pairs(AutoKnowledgeMacro.finishingReagents) do
     for _, reagentPair in ipairs(expansionList) do
-      local key = tostring(reagentPair.itemID)
-      AutoKnowledgeMacro.MinimumQuantityItems[key] = reagentPair.qty
-
-      -- still need to know the names for the Settings 
-      if not AutoKnowledgeMacro.NameCache[reagentPair.itemID] then
-        AutoKnowledgeMacro.NameCache[reagentPair.itemID] = { name = key, nameFound = false }
+      AutoKnowledgeMacro.MinimumQuantityItems[reagentPair.itemID] = reagentPair.qty
+      if not AutoKnowledgeMacro:NameFound(reagentPair.itemID) then
         AutoKnowledgeMacro:GetItemNameByID(reagentPair.itemID)
       end
     end
-    end
   end
+end
 
 --################################################################################--
 -- (Almost) everything the addon needs to do, excludes static data
@@ -357,15 +403,20 @@ function f:SKILL_LINE_SPECS_RANKS_CHANGED(event, ...)
 end
 
 function f:GET_ITEM_INFO_RECEIVED(event, itemID, success)
-  if success and AutoKnowledgeMacro.NameCache[itemID] and not AutoKnowledgeMacro.NameCache[itemID][KEY_NAMEFOUND] then
-    local name = AutoKnowledgeMacro:GetItemNameByID(itemID)
-      apkPrint("WARN", event .. " itemID: " .. tostring(itemID) .. " " .. name .. " success: " .. tostring(success))
-      C_Timer.After(0.1, function()
-      AutoKnowledgeMacro:Update()
-      end)
+  if success then
+    -- we only care about what we care about
+    if AutoKnowledgeMacro.ActiveProfessionItems[itemID] or AutoKnowledgeMacro:IsFinishingReagent(itemID) then
+      if not AutoKnowledgeMacro:NameFound(itemID) then
+        local name = AutoKnowledgeMacro:GetItemNameByID(itemID)
+          apkPrint("WARN", event .. " itemID: " .. tostring(itemID) .. " " .. name .. " success: " .. tostring(success))
+          C_Timer.After(0.1, function()
+          AutoKnowledgeMacro:Update()
+          end)
 
-    if AutoKnowledgeMacro:IsFinishingReagent(itemID) then
-      AutoKnowledgeMacro:InitializeSettings()
+        if AutoKnowledgeMacro:IsFinishingReagent(itemID) then
+          AutoKnowledgeMacro:InitializeSettings()
+        end
+      end
     end
   end
 end
