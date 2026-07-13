@@ -1,5 +1,6 @@
 local _, AutoKnowledgeMacro = ...
 local ALCHEMY_PK_ITEMS = {
+  222546, -- Algari Treatise on Alchemy
   224024, -- Theories of Bodily Transmutation, Chapter 8
   224645, -- Jewel-Etched Alchemy Notes
   226265, -- Earthen Iron Powder
@@ -19,6 +20,7 @@ local ALCHEMY_PK_ITEMS = {
   235865, -- Ethereal Tome of Alchemy Knowledge
 }
 local BLACKSMITH_PK_ITEMS = {
+  222554, -- Algari Treatise on Blacksmithing
   224038, -- Smithing After Saronite
   224647, -- Jewel-Etched Blacksmithing Notes
   226276, -- Ancient Earthen Anvil
@@ -38,6 +40,7 @@ local BLACKSMITH_PK_ITEMS = {
   235864, -- Ethereal Tome of Blacksmithing Knowledge
 }
 local ENCHANTING_PK_ITEMS = {
+  222550, -- Algari Treatise on Enchanting
   224050, -- Web Sparkles: Pretty and Powerful
   224652, -- Jewel-Etched Enchanting Notes
   226284, -- Grinded Earthen Gem
@@ -60,6 +63,7 @@ local ENCHANTING_PK_ITEMS = {
   235863, -- Ethereal Tome of Enchanting Knowledge
 }
 local ENGINEERING_PK_ITEMS = {
+  222621, -- Algari Treatise on Engineering
   224052, -- Clocks, Gears, Sprockets, and Legs
   224653, -- Machine-Learned Engineering Notes
   226292, -- Rock Engineer's Wrench
@@ -79,6 +83,7 @@ local ENGINEERING_PK_ITEMS = {
   235862, -- Ethereal Tome of Engineering Knowledge
 }
 local HERBALISM_PK_ITEMS = {
+  222552, -- Algari Treatise on Herbalism
   224023, -- Herbal Embalming Techniques
   224264, -- Deepgrove Petal
   224265, -- Deepgrove Rose
@@ -98,6 +103,7 @@ local HERBALISM_PK_ITEMS = {
   235861, -- Ethereal Tome of Herbalism Knowledge
 }
 local INSCRIPTION_PK_ITEMS = {
+  222548, -- Algari Treatise on Inscription
   224053, -- Eight Views on Defense against Hostile Runes
   224654, -- Machine-Learned Inscription Notes
   226308, -- Dornogal Scribe's Quill
@@ -117,6 +123,7 @@ local INSCRIPTION_PK_ITEMS = {
   235860, -- Ethereal Tome of Inscription Knowledge
 }
 local JEWELCRAFTING_PK_ITEMS = {
+  222551, -- Algari Treatise on Jewelcrafting
   224054, -- Emergent Crystals of the Surface-Dwellers
   224655, -- Void-Lit Jewelcrafting Notes
   226316, -- Gentle Jewel Hammer
@@ -136,6 +143,7 @@ local JEWELCRAFTING_PK_ITEMS = {
   235859, -- Ethereal Tome of Jewelcrafting Knowledge
 }
 local LEATHERWORKING_PK_ITEMS = {
+  222549, -- Algari Treatise on Leatherworking
   224056, -- Uses for Leftover Husks (After You Take Them Apart)
   224658, -- Void-Lit Leatherworking Notes
   226324, -- Earthen Lacing Tools
@@ -155,6 +163,7 @@ local LEATHERWORKING_PK_ITEMS = {
   235858, -- Ethereal Tome of Leatherworking Knowledge
 }
 local MINING_PK_ITEMS = {
+  222553, -- Algari Treatise on Mining
   224055, -- A Rocky Start
   224583, -- Slab of Slate
   224584, -- Erosion-Polished Slate
@@ -174,6 +183,7 @@ local MINING_PK_ITEMS = {
   235857, -- Ethereal Tome of Mining Knowledge
 }
 local SKINNING_PK_ITEMS = {
+  222649, -- Algari Treatise on Skinning
   224007, -- Uses for Leftover Husks (How to Take Them Apart)
   224657, -- Void-Lit Skinning Notes
   224780, -- Toughened Tempest Pelt
@@ -193,6 +203,7 @@ local SKINNING_PK_ITEMS = {
   235856, -- Ethereal Tome of Skinning Knowledge
 }
 local TAILORING_PK_ITEMS = {
+  222547, -- Algari Treatise on Tailoring
   224036, -- And That's A Web-Wrap!
   224648, -- Jewel-Etched Tailoring Notes
   226348, -- Dornogal Seam Ripper
