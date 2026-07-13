@@ -1,5 +1,6 @@
 local MACRO_NAME, AutoKnowledgeMacro = ...
 
+-- local MACRO_NAME = "AutoKnowledgeMacro"
 if DLAPI then DLAPI.DebugLog(MACRO_NAME, "OK~"..MACRO_NAME.." loading...") end
 SLASH_AUTOKNOWLEDGEMACRO1, SLASH_AUTOKNOWLEDGEMACRO2 = '/autokm', '/akm'
 local BAGS = {
@@ -7,12 +8,17 @@ local BAGS = {
   Enum.BagIndex.Bag_1,
   Enum.BagIndex.Bag_2,
   Enum.BagIndex.Bag_3,
-  Enum.BagIndex.Bag_4,
-  Enum.BagIndex.ReagentBag
+  Enum.BagIndex.Bag_4
 }
 
+-- this will collect the above arrays, keyed under their Enum.Profession value
+AutoKnowledgeMacro.professionMap = {}
 AutoKnowledgeMacro.ENUM_PROFESSION_ALL = 9999
-AutoKnowledgeMacro.SettingCategoryID = nil
+local professionMap = AutoKnowledgeMacro.professionMap
+
+-- this holds all the item ids that can be flagged as complete by quests, and their quest ids
+AutoKnowledgeMacro.questFlaggedItems = {}
+local questFlaggedItems = AutoKnowledgeMacro.questFlaggedItems
 
 -- cache the Enum.Profession values I know
 local myProfession1 = nil
@@ -26,8 +32,6 @@ AutoKnowledgeMacro.KEY_NAMEFOUND = "nameFound"
 -- This will hold a list of every profession item.  Key is item ID, value is {"profession" : Enum.Profession }
 AutoKnowledgeMacro.ActiveProfessionItems = {}
 local KEY_PROFESSION = "profession"
--- Master list of the above cache
-AutoKnowledgeMacro.professionMap = {}
 
 -- This will hold a list of every profession item that can be disabled by a quest, like treatises.  Key is item ID in string, val is quest ID to check
 AutoKnowledgeMacro.QuestFlaggedItemMap = {}
@@ -57,7 +61,7 @@ AutoKnowledgeMacro.professionMap[AutoKnowledgeMacro.ENUM_PROFESSION_ALL] = {}
 --################################################################################--
 local function apkPrint(level, ...)
   local status, res = pcall(format, ...)
-  if AutoKnowledgeMacro_SavedVars and AutoKnowledgeMacro_SavedVars.debug then
+  if debug then
     if DLAPI then
       DLAPI.DebugLog(MACRO_NAME, level .."~".. res)
     else
@@ -286,10 +290,16 @@ function AutoKnowledgeMacro:Update()
   end)
 end
 
-function AutoKnowledgeMacro:ReloadAllProfessionItems()
-  AutoKnowledgeMacro.ActiveProfessionItems = {}
+--################################################################################--
+-- (Almost) everything the addon needs to do, excludes static data
+--################################################################################--
+local function Reload()
+  -- make sure we have a macro to update
+  GetMacroSlot()
+
+  ALL_PROFESSION_ITEMS = {}
   -- Load all item names in now, save us the trouble later
-  for professionEnum, expansionList in pairs(AutoKnowledgeMacro.professionMap) do
+  for professionEnum, expansionList in pairs(professionMap) do
     for _, itemList in pairs(expansionList) do
       for _, itemID in pairs(itemList) do
         AutoKnowledgeMacro.ActiveProfessionItems[itemID] = { profession = professionEnum }
@@ -343,7 +353,7 @@ local function ReloadAll()
   -- Weekly resets for Treatises
   local seconds = C_DateAndTime.GetSecondsUntilWeeklyReset()
   C_Timer.After(seconds, function()
-    ReloadAll()
+    Reload()
   end)
 end
 
@@ -359,13 +369,7 @@ function f:ADDON_LOADED(event, addOnName)
   apkPrint("WARN", event .. " " .. addOnName)
   AutoKnowledgeMacro.SettingCategoryID = nil
 
-  AutoKnowledgeMacro:LoadMidnightData()
-  AutoKnowledgeMacro:LoadTheWarWithinData()
-  AutoKnowledgeMacro:CheckOrCreateSettings()
-
-  ReloadAll()
-
-  AutoKnowledgeMacro:InitializeSettings()
+  Reload()
 end
 
 function f:BAG_CONTAINER_UPDATE(event, ...)
@@ -434,16 +438,6 @@ f:RegisterEvent("GET_ITEM_INFO_RECEIVED") -- Called C_Item.GetItemName(), name i
 
 f:SetScript("OnEvent", f.OnEvent)
 
-function AutoKnowledgeMacro:ToggleDebug()
-  AutoKnowledgeMacro:SetDebug(not AutoKnowledgeMacro_SavedVars.debug)
-end
-
-function AutoKnowledgeMacro:SetDebug(newValue)
-  AutoKnowledgeMacro_SavedVars.debug = newValue
-  apkPrint("OK", "AKM: Debug ".. (AutoKnowledgeMacro_SavedVars.debug and "on" or "off"))
-  print("AutoKnowledgeMacro: Debug ".. (AutoKnowledgeMacro_SavedVars.debug and "on" or "off"))
-end
-
 --################################################################################--
 -- Slash commands
 --################################################################################--
@@ -454,13 +448,15 @@ SlashCmdList["AUTOKNOWLEDGEMACRO"] = function(msg, editBox)
     apkPrint("OK", "AKM: Complete")
     print("AutoKnowledgeMacro: Update complete")
   elseif msg == "debug" then
-    AutoKnowledgeMacro:ToggleDebug()
+    debug = not debug
+    apkPrint("OK", "AKM: Debug ".. (debug and "on" or "off"))
+    print("AutoKnowledgeMacro: Debug ".. (debug and "on" or "off"))
   elseif msg == "pickup" then
     apkPrint("OK", "AKM: Picking up macro")
     PickupMacro(MACRO_NAME)
   elseif msg == "reload" then
     apkPrint("OK", "AKM: Updating professions")
-    ReloadAll()
+    Reload()
     print("AutoKnowledgeMacro: Reload complete")
   elseif msg == "help" or msg == nil or msg == "" then
     print("AutoKnowledgeMacro commands: /autokm or /akm")

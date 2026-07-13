@@ -6,7 +6,6 @@
 ## SavedVariablesPerCharacter: AutoKnowledgeMacro_SavedVars
 ## Category: Professions
 
+AutoKnowledgeMacro.lua
 Midnight.lua
 TheWarWithin.lua
-Settings.lua
-AutoKnowledgeMacro.lua
