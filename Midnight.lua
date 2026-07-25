@@ -302,6 +302,12 @@ local TAILORING_PK_ITEMS = {
 local ALL_PROFESSION_ITEMS = {
   227713, -- Artisan's Consortium Payout
   246585, -- Artisan's Consortium Payout
+  -- "Crafters Needed" quest reward:
+  251327, -- Thalassian Tailor's Tote Bag
+  251321, -- Collection of Eversong Minerals
+  251322, -- Thalassian Leatherworker's Duffel
+  251324, -- Basket of Eversong Herbs
+  251326, -- Thalassian Enchanter's Purse
 }
 
 -- Map of Treatises and the QuestIDs flagged when you learn them
