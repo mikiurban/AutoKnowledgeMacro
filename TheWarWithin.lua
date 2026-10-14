@@ -2,6 +2,9 @@ local _, AutoKnowledgeMacro = ...
 local ALCHEMY_PK_ITEMS = {
   224024, -- Theories of Bodily Transmutation, Chapter 8
   224645, -- Jewel-Etched Alchemy Notes
+  225228, -- Rust-Locked Mechanism
+  225234, -- Alchemical Sediment
+  225235, -- Deepstone Crucible
   226265, -- Earthen Iron Powder
   226266, -- Metal Dornogal Frame
   226267, -- Reinforced Beaker
@@ -15,12 +18,15 @@ local ALCHEMY_PK_ITEMS = {
   227431, -- Pristine Alchemist's Research
   228724, -- Flicker of Alchemy Knowledge
   228725, -- Glimmer of Alchemy Knowledge
+  228773, -- Algari Alchemist's Notebook  
   232499, -- Undermine Treatise on Alchemy
   235865, -- Ethereal Tome of Alchemy Knowledge
 }
 local BLACKSMITH_PK_ITEMS = {
   224038, -- Smithing After Saronite
   224647, -- Jewel-Etched Blacksmithing Notes
+  225232, -- Coreway Billet
+  225233, -- Dense Bladestone
   226276, -- Ancient Earthen Anvil
   226277, -- Dornogal Hammer
   226278, -- Ringing Hammer Vise
@@ -34,12 +40,15 @@ local BLACKSMITH_PK_ITEMS = {
   227429, -- Pristine Blacksmith's Diagrams
   228726, -- Flicker of Blacksmithing Knowledge
   228727, -- Glimmer of Blacksmithing Knowledge
+  228774, -- Algari Blacksmith's Journal
   232500, -- Undermine Treatise on Blacksmithing
   235864, -- Ethereal Tome of Blacksmithing Knowledge
 }
 local ENCHANTING_PK_ITEMS = {
   224050, -- Web Sparkles: Pretty and Powerful
   224652, -- Jewel-Etched Enchanting Notes
+  225230, -- Crystalline Repository
+  225231, -- Powdered Fulgurance
   226284, -- Grinded Earthen Gem
   226285, -- Silver Dornogal Rod
   226286, -- Soot-Coated Orb
@@ -54,6 +63,7 @@ local ENCHANTING_PK_ITEMS = {
   227659, -- Fleeting Arcane Manifestation
   227661, -- Gleaming Telluric Crystal
   227662, -- Shimmering Dust
+  227667, -- Algari Enchanter's Folio  
   228728, -- Flicker of Enchanting Knowledge
   228729, -- Glimmer of Enchanting Knowledge
   232501, -- Undermine Treatise on Enchanting
@@ -62,6 +72,7 @@ local ENCHANTING_PK_ITEMS = {
 local ENGINEERING_PK_ITEMS = {
   224052, -- Clocks, Gears, Sprockets, and Legs
   224653, -- Machine-Learned Engineering Notes
+  225229, -- Earthen Induction Coil
   226292, -- Rock Engineer's Wrench
   226293, -- Dornogal Spectacles
   226294, -- Inert Mining Bomb
@@ -75,6 +86,7 @@ local ENGINEERING_PK_ITEMS = {
   227434, -- Pristine Engineer's Scribblings
   228730, -- Flicker of Engineering Knowledge
   228731, -- Glimmer of Engineering Knowledge
+  228775, -- Algari Engineer's Notepad  
   232507, -- Undermine Treatise on Engineering
   235862, -- Ethereal Tome of Engineering Knowledge
 }
@@ -83,6 +95,8 @@ local HERBALISM_PK_ITEMS = {
   224264, -- Deepgrove Petal
   224265, -- Deepgrove Rose
   224656, -- Void-Lit Herbalism Notes
+  224817, -- Algari Herbalist's Notes
+  224835, -- Deepgrove Roots  
   226300, -- Ancient Flower
   226301, -- Dornogal Gardening Scythe
   226302, -- Earthen Digging Fork
@@ -100,6 +114,8 @@ local HERBALISM_PK_ITEMS = {
 local INSCRIPTION_PK_ITEMS = {
   224053, -- Eight Views on Defense against Hostile Runes
   224654, -- Machine-Learned Inscription Notes
+  225226, -- Striated Inkstone
+  225227, -- Wax-Sealed Records
   226308, -- Dornogal Scribe's Quill
   226309, -- Historian's Dip Pen
   226310, -- Runic Scroll
@@ -113,12 +129,15 @@ local INSCRIPTION_PK_ITEMS = {
   227430, -- Pristine Scribe's Runic Drawings
   228732, -- Flicker of Inscription Knowledge
   228733, -- Glimmer of Inscription Knowledge
+  228776, -- Algari Scribe's Journal  
   232508, -- Undermine Treatise on Inscription
   235860, -- Ethereal Tome of Inscription Knowledge
 }
 local JEWELCRAFTING_PK_ITEMS = {
   224054, -- Emergent Crystals of the Surface-Dwellers
   224655, -- Void-Lit Jewelcrafting Notes
+  225224, -- Diaphanous Gem Shards
+  225225, -- Deepstone Fragment
   226316, -- Gentle Jewel Hammer
   226317, -- Earthen Gem Pliers
   226318, -- Carved Stone File
@@ -132,12 +151,15 @@ local JEWELCRAFTING_PK_ITEMS = {
   227435, -- Pristine Jeweler's Illustrations
   228734, -- Flicker of Jewelcrafting Knowledge
   228735, -- Glimmer of Jewelcrafting Knowledge
+  228777, -- Algari Jewelcrafter's Notebook  
   232504, -- Undermine Treatise on Jewelcrafting
   235859, -- Ethereal Tome of Jewelcrafting Knowledge
 }
 local LEATHERWORKING_PK_ITEMS = {
   224056, -- Uses for Leftover Husks (After You Take Them Apart)
   224658, -- Void-Lit Leatherworking Notes
+  225222, -- Stone-Leather Swatch
+  225223, -- Sturdy Nerubian Carapace  
   226324, -- Earthen Lacing Tools
   226325, -- Dornogal Craftsman's Flat Knife
   226326, -- Underground Stropping Compound
@@ -151,6 +173,7 @@ local LEATHERWORKING_PK_ITEMS = {
   227436, -- Pristine Leatherworker's Diagrams
   228736, -- Flicker of Leatherworking Knowledge
   228737, -- Glimmer of Leatherworking Knowledge
+  228778, -- Algari Leatherworker's Journal
   232505, -- Undermine Treatise on Leatherworking
   235858, -- Ethereal Tome of Leatherworking Knowledge
 }
@@ -159,6 +182,8 @@ local MINING_PK_ITEMS = {
   224583, -- Slab of Slate
   224584, -- Erosion-Polished Slate
   224651, -- Machine-Learned Mining Notes
+  224818, -- Algari Miner's Notes
+  224838, -- Null Silver  
   226332, -- Earthen Miner's Gavel
   226333, -- Dornogal Chisel
   226334, -- Earthen Excavator's Shovel
@@ -178,6 +203,8 @@ local SKINNING_PK_ITEMS = {
   224657, -- Void-Lit Skinning Notes
   224780, -- Toughened Tempest Pelt
   224781, -- Abyssal Fur
+  224782, -- Razor Talon
+  224807, -- Algari Skinner's Notes  
   226340, -- Dornogal Carving Knife
   226341, -- Earthen Worker's Beams
   226342, -- Artisan's Drawing Knife
@@ -195,6 +222,8 @@ local SKINNING_PK_ITEMS = {
 local TAILORING_PK_ITEMS = {
   224036, -- And That's A Web-Wrap!
   224648, -- Jewel-Etched Tailoring Notes
+  225220, -- Chitin Needle
+  225221, -- Spool of Webweave
   226348, -- Dornogal Seam Ripper
   226349, -- Earthen Tape Measure
   226350, -- Runed Earthen Pins
@@ -208,11 +237,13 @@ local TAILORING_PK_ITEMS = {
   227432, -- Pristine Tailor's Diagrams
   228738, -- Flicker of Tailoring Knowledge
   228739, -- Glimmer of Tailoring Knowledge
+  228779, -- Algari Tailor's Notebook  
   232502, -- Undermine Treatise on Tailoring
   235855, -- Ethereal Tome of Tailoring Knowledge
 }
 local ALL_PROFESSION_ITEMS = {
   --227713, -- Artisan's Consortium Payout
+  
 }
 
 -- Map of Treatises and the QuestIDs flagged when you learn them
