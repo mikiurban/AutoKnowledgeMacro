@@ -4,6 +4,7 @@
 ## Notes: Creates and updates a macro for using Profession Knowledge items as you collect them
 ## Author: Miki Urban
 ## SavedVariablesPerCharacter: AutoKnowledgeMacro_SavedVars
+## SavedVariables: AutoKnowledgeMacro_GlobalSavedVars
 ## Category: Professions
 
 Midnight.lua

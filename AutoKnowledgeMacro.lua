@@ -160,9 +160,10 @@ end
 -- return the macro index, create one if we need
 --################################################################################--
 local function GetMacroSlot()
-  local macroSlot = GetMacroIndexByName(MACRO_NAME)
+  local macro_name = AutoKnowledgeMacro:GetMacroName()
+  local macroSlot = GetMacroIndexByName(macro_name)
   if macroSlot == 0 then
-    macroSlot = CreateMacro(MACRO_NAME, "INV_Misc_QuestionMark", "", false)
+    macroSlot = CreateMacro(macro_name, "INV_Misc_QuestionMark", "", false)
   end
   return macroSlot
 end
@@ -230,6 +231,8 @@ function AutoKnowledgeMacro:Update()
     return
   end
 
+  local macro_name = AutoKnowledgeMacro:GetMacroName()
+
   UpdateInProgress = true
   apkPrint("WARN", "Update start...")
 
@@ -255,7 +258,7 @@ function AutoKnowledgeMacro:Update()
                 local displayText = AutoKnowledgeMacro:GetItemNameByID(info.itemID) or id
                 apkPrint ("OK", "Setting Auto PK to " .. displayText)
                 local body = "#showtooltip ".. displayText .. "\n/use item:" .. id
-                EditMacro(macroSlot, MACRO_NAME, nil, body)
+                EditMacro(macroSlot, macro_name, nil, body)
                 apkPrint("WARN", "Update end, found " .. displayText)
                 UpdateInProgress = false
                 return
@@ -269,7 +272,7 @@ function AutoKnowledgeMacro:Update()
             if enabled and haveQty >= needQty then
               local displayText = AutoKnowledgeMacro:GetItemNameByID(info.itemID) or id
               local body = "#showtooltip ".. displayText .. "\n/use item:" .. id
-              EditMacro(macroSlot, MACRO_NAME, nil, body)
+              EditMacro(macroSlot, macro_name, nil, body)
               apkPrint("WARN", "Update end, found " .. displayText)
               UpdateInProgress = false
               return
@@ -282,7 +285,7 @@ function AutoKnowledgeMacro:Update()
 
   -- no items found or no professions found, leave it alone
   apkPrint("WARN", "Update end, nothing found")
-  EditMacro(macroSlot, MACRO_NAME, "INV_Misc_QuestionMark", "/akm update")
+  EditMacro(macroSlot, macro_name, "INV_Misc_QuestionMark", "/akm update")
   -- Give the addon some time for all the triggers to collect
   C_Timer.After(0.1, function()
     UpdateInProgress = false
@@ -459,7 +462,8 @@ SlashCmdList["AUTOKNOWLEDGEMACRO"] = function(msg, editBox)
     AutoKnowledgeMacro:ToggleDebug()
   elseif msg == "pickup" then
     apkPrint("OK", "AKM: Picking up macro")
-    PickupMacro(MACRO_NAME)
+    local macro_name = AutoKnowledgeMacro:GetMacroName()
+    PickupMacro(macro_name)
   elseif msg == "reload" then
     apkPrint("OK", "AKM: Updating professions")
     ReloadAll()

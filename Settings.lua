@@ -5,9 +5,20 @@ AutoKnowledgeMacro_SavedVars = {
   treatises = true
 }
 
+AutoKnowledgeMacro_GlobalSavedVars = {
+  shortName = false
+}
+
 local function OnSettingChanged(setting, value)
 	-- This callback will be invoked whenever a setting is modified.
   AutoKnowledgeMacro:Update()
+end
+
+function AutoKnowledgeMacro:GetMacroName()
+  if AutoKnowledgeMacro_GlobalSavedVars.shortName then
+    return "AKM"
+  end
+  return MACRO_NAME
 end
 
 function AutoKnowledgeMacro:InitializeSettings()
@@ -37,6 +48,13 @@ function AutoKnowledgeMacro:InitializeSettings()
     setting = Settings.RegisterAddOnSetting(AutoKnowledgeMacro.SettingCategoryID, "AKM_Treatises", "treatises", AutoKnowledgeMacro_SavedVars, type(defaultFalse), "Use Treatises", defaultFalse)
     setting:SetValueChangedCallback(OnSettingChanged)
     Settings.CreateCheckbox(AutoKnowledgeMacro.SettingCategoryID, setting, "Use Treatises when available") -- last param is tooltip
+  end
+
+  setting = Settings.GetSetting("AKM_ShortName")
+	if not setting then
+    setting = Settings.RegisterAddOnSetting(AutoKnowledgeMacro.SettingCategoryID, "AKM_ShortName", "shortName", AutoKnowledgeMacro_GlobalSavedVars, type(defaultFalse), "Use AKM for macro name", defaultFalse)
+    setting:SetValueChangedCallback(OnSettingChanged)
+    Settings.CreateCheckbox(AutoKnowledgeMacro.SettingCategoryID, setting, "This value is account-wide") -- last param is tooltip
   end
 
   for _, expansionList in pairs(AutoKnowledgeMacro.finishingReagents) do
